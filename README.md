@@ -20,3 +20,5 @@ Catalogo nutrizionale: 190 ingredienti dal foglio Catalogo ingredienti, più que
 Tag: pulsante + Tag su ogni ricetta per aggiungere o rimuovere tag. I suggerimenti sono disponibili anche nel modulo Nuova ricetta; nuovi tag possono essere scritti separandoli con punto e virgola. Deduplicazione, aggiornamento filtri e ricerca, salvataggio locale delle modifiche tramite recipeTags.
 
 Spesa manuale: usa Aggiungi alla spesa per ingredienti o prodotti liberi con quantità e unità. I nomi riconosciuti nel catalogo o nelle ricette vengono aggregati per ID e unità; il cestino elimina anche i contributi manuali. Pubblicazione privata non completata: invio stdin al workflow di sincronizzazione rifiutato dalla policy di approvazione della sessione.
+
+Calendario settimanale sopra il ricettario: una ricetta al giorno, trascinamento desktop e selettore a clic per touch/tastiera, settimane precedente/successiva e ritorno alla settimana corrente. Salvataggio locale con date in boschetto-calendar-v1. Nessuna selezione automatica per la spesa. La lista della spesa è un pannello laterale modale apribile dalla icona in alto, richiudibile via pulsante, Esc e clic sullo sfondo.

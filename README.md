@@ -1,30 +1,29 @@
 # Bar Boschetto
 
-App statica responsive. Servire la cartella `dist` con un server HTTP (non aprire index.html via file://).
+Web app statica per ricettario familiare, calendario settimanale e lista della spesa.
 
-## Dati
-`dist/data.json` conserva le tre strutture: ricette, ricette_ingredienti, catalogo_ingredienti. Gli ID collegano le tabelle. I dati derivano dal ricettario Excel fornito: 99 ricette, 592 associazioni, 190 ingredienti.
+## Struttura e pubblicazione
+
+Il codice è nella radice del branch `main`. La cartella `dist/` è stata rimossa.
+
+- `index.html`: interfaccia e moduli.
+- `app.js`: ricette, filtri, calendario e lista della spesa.
+- `nutrition.js`: catalogo nutrizionale compilabile.
+- `style.css`: stile responsive.
+- `data.json`: 99 ricette, 592 associazioni e 190 ingredienti importati dall’Excel.
+
+I file con hash nel nome sono asset di pubblicazione per evitare copie obsolete in cache. Dopo modifiche a JS/CSS, rigenerare il file con hash e aggiornare il riferimento in `index.html`.
+
+GitHub Pages pubblica da `main`, cartella `/ (root)`. `.nojekyll` abilita la pubblicazione statica. La vecchia configurazione Sites che puntava a `dist/` è stata rimossa.
+
+Per l’anteprima locale servire la radice via HTTP, ad esempio `python -m http.server 8770`.
 
 ## Funzioni
-Ricerca senza distinzione di accenti su ricette e ingredienti IT/NL, categoria principale e aggiuntive, tag multipli con logica AND, espansione indipendente delle ricette. Lista della spesa aggregata per ingredient_id e unità; quantità non numeriche conservate, unità diverse mantenute separate. Selezioni e acquisti salvati nel localStorage del browser.
 
-## Evoluzioni
-HTML, CSS, logica applicativa e dati separati. Nessun backend e nessuna sincronizzazione tra dispositivi in questa sessione. I campi nutrizionali originali restano nei dati senza essere mostrati in home.
+Ricerca bilingue IT/NL, categorie espandibili, tag multipli, viste Categorie e Tabella, creazione e modifica di ricette, ingredienti e note condivisi tra le viste. Calendario settimanale sticky con trascinamento e scelta a clic. Spesa laterale richiudibile con selezione singola, quantità e unità modificabili, aggiunta manuale, aggregazione, cestino e copia.
 
-Aggiornamento: categorie nel menu corrette, selezione singola degli ingredienti e quantità modificabili sotto ogni ricetta. Copia della lista negli appunti con alternativa manuale; il testo si può incollare in Google Keep. Le quantità modificate sono salvate nel browser e usate per l’aggregazione.
+Catalogo nutrizionale compilabile per 100 g o porzione, senza stime automatiche.
 
-Nuove ricette: pulsante Nuova ricetta con nome, categoria esistente o nuova, porzioni, tag, ingredienti e note. Salvataggio locale verificato prima della chiusura del modulo. Il cestino nella spesa elimina tutti i contributi per lo stesso ingrediente e unità, aggiornando le selezioni nel ricettario.
+## Salvataggio
 
-Catalogo nutrizionale: 190 ingredienti dal foglio Catalogo ingredienti, più quelli delle ricette locali. Ricerca IT/NL e valori facoltativi di kcal, proteine, carboidrati e grassi. Basi separate per 100 grammi e porzione, con descrizione e peso facoltativi. Nessuna conversione o stima automatica. Dati salvati in localStorage sotto boschetto-nutrition-v1; non sincronizzati tra dispositivi. Il file Excel originale resta invariato.
-
-Tag: pulsante + Tag su ogni ricetta per aggiungere o rimuovere tag. I suggerimenti sono disponibili anche nel modulo Nuova ricetta; nuovi tag possono essere scritti separandoli con punto e virgola. Deduplicazione, aggiornamento filtri e ricerca, salvataggio locale delle modifiche tramite recipeTags.
-
-Spesa manuale: usa Aggiungi alla spesa per ingredienti o prodotti liberi con quantità e unità. I nomi riconosciuti nel catalogo o nelle ricette vengono aggregati per ID e unità; il cestino elimina anche i contributi manuali. Pubblicazione privata non completata: invio stdin al workflow di sincronizzazione rifiutato dalla policy di approvazione della sessione.
-
-Calendario settimanale sopra il ricettario: una ricetta al giorno, trascinamento desktop e selettore a clic per touch/tastiera, settimane precedente/successiva e ritorno alla settimana corrente. Salvataggio locale con date in boschetto-calendar-v1. Nessuna selezione automatica per la spesa. La lista della spesa è un pannello laterale modale apribile dalla icona in alto, richiudibile via pulsante, Esc e clic sullo sfondo.
-
-Ricettario raggruppato per categoria principale con sezioni espandibili e conteggio dei risultati. Ogni intestazione offre + Nuova con categoria precompilata. La ricerca apre le sezioni risultanti e i tag hanno caratteri più grandi. Verificato nel browser desktop/mobile, inclusa creazione dalla categoria chiusa.
-
-Calendario sticky compatto durante lo scorrimento; giorni scorrevoli su mobile. Tab Ricettario · Tabella con campi del foglio Ricette, separatori orizzontali, ricerca/filtri condivisi, ingredienti espandibili e trascinamento. Verificati posizione sticky, numero righe e assenza overflow mobile nel browser.
-
-Modifica ricette: pulsante Modifica nelle viste Categorie e Tabella. Ingredienti aggiungibili/rimovibili, quantità, unità e note modificabili. Dati condivisi tra viste e salvataggio locale in editedRecipes. La rimozione rimappa le selezioni rimaste senza associarle a ingredienti diversi. Tabella con ID, Ricetta e ingredienti, Categoria, Tag, Note. Verificati salvataggio, ricarica, sincronizzazione viste e aggiornamento spesa nel browser.
+Modifiche e dati personali restano nel localStorage del browser. Non vengono sincronizzati tra dispositivi, GitHub o Excel.

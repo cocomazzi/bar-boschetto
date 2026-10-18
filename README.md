@@ -24,3 +24,5 @@ Spesa manuale: usa Aggiungi alla spesa per ingredienti o prodotti liberi con qua
 Calendario settimanale sopra il ricettario: una ricetta al giorno, trascinamento desktop e selettore a clic per touch/tastiera, settimane precedente/successiva e ritorno alla settimana corrente. Salvataggio locale con date in boschetto-calendar-v1. Nessuna selezione automatica per la spesa. La lista della spesa è un pannello laterale modale apribile dalla icona in alto, richiudibile via pulsante, Esc e clic sullo sfondo.
 
 Ricettario raggruppato per categoria principale con sezioni espandibili e conteggio dei risultati. Ogni intestazione offre + Nuova con categoria precompilata. La ricerca apre le sezioni risultanti e i tag hanno caratteri più grandi. Verificato nel browser desktop/mobile, inclusa creazione dalla categoria chiusa.
+
+Calendario sticky compatto durante lo scorrimento; giorni scorrevoli su mobile. Tab Ricettario · Tabella con campi del foglio Ricette, separatori orizzontali, ricerca/filtri condivisi, ingredienti espandibili e trascinamento. Verificati posizione sticky, numero righe e assenza overflow mobile nel browser.

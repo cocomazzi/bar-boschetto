@@ -26,3 +26,5 @@ Calendario settimanale sopra il ricettario: una ricetta al giorno, trascinamento
 Ricettario raggruppato per categoria principale con sezioni espandibili e conteggio dei risultati. Ogni intestazione offre + Nuova con categoria precompilata. La ricerca apre le sezioni risultanti e i tag hanno caratteri più grandi. Verificato nel browser desktop/mobile, inclusa creazione dalla categoria chiusa.
 
 Calendario sticky compatto durante lo scorrimento; giorni scorrevoli su mobile. Tab Ricettario · Tabella con campi del foglio Ricette, separatori orizzontali, ricerca/filtri condivisi, ingredienti espandibili e trascinamento. Verificati posizione sticky, numero righe e assenza overflow mobile nel browser.
+
+Modifica ricette: pulsante Modifica nelle viste Categorie e Tabella. Ingredienti aggiungibili/rimovibili, quantità, unità e note modificabili. Dati condivisi tra viste e salvataggio locale in editedRecipes. La rimozione rimappa le selezioni rimaste senza associarle a ingredienti diversi. Tabella con ID, Ricetta e ingredienti, Categoria, Tag, Note. Verificati salvataggio, ricarica, sincronizzazione viste e aggiornamento spesa nel browser.

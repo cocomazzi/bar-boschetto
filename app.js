@@ -113,3 +113,8 @@ $('#shopping-list').addEventListener('dragover',e=>{const row=e.target.closest('
 $('#shopping-list').addEventListener('dragleave',e=>{const row=e.target.closest('[data-shop-key]');if(row&&!row.contains(e.relatedTarget))row.classList.remove('shop-drop-target')});
 $('#shopping-list').addEventListener('drop',e=>{if(!draggingShop)return;e.preventDefault();const row=e.target.closest('[data-shop-key]');if(row)reorderShopping(draggingShop,row.dataset.shopKey);draggingShop=null});
 $('#shopping-list').addEventListener('dragend',()=>{draggingShop=null;$('#shopping-list').querySelectorAll('.shop-drop-target,.shop-dragging').forEach(row=>row.classList.remove('shop-drop-target','shop-dragging'))});
+
+const mainNav=$('.main-nav');
+function updateNavigationOffsets(){document.documentElement.style.setProperty('--nav-height',mainNav.getBoundingClientRect().height+'px');document.documentElement.style.setProperty('--calendar-height',$('#calendario').getBoundingClientRect().height+'px')}
+if(window.ResizeObserver){const navigationObserver=new ResizeObserver(updateNavigationOffsets);navigationObserver.observe(mainNav);navigationObserver.observe($('#calendario'))}updateNavigationOffsets();
+for(const id of ['#nav-recipes','#nav-calendar'])$(id).addEventListener('click',()=>{for(const link of mainNav.querySelectorAll('a'))link.removeAttribute('aria-current');$(id).setAttribute('aria-current','location')});

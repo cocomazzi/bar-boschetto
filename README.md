@@ -34,3 +34,8 @@ Modifiche e dati personali restano nel localStorage del browser. Non vengono sin
 Ogni ricetta pianificata aggiunge un contributo indipendente alla spesa. Rimuoverla da un giorno elimina solo quel contributo; restano gli altri giorni e le selezioni manuali. Il cestino e Svuota escludono anche le voci del calendario dalla spesa senza cancellare il piano. Rimuovere e riassegnare la ricetta ripristina i suoi ingredienti.
 
 La spesa si riordina trascinando le righe oppure con le frecce su/giù. L’ordine è salvato nel browser ed è rispettato anche nella copia della lista. Pop-up temporanei confermano l’aggiunta di un ingrediente singolo e la modifica di una ricetta.
+
+
+## Navigazione
+
+Barra sticky con Ricettario, Calendario, Catalogo ingredienti e Lista della spesa. Le ancore rispettano l’ingombro di barra e calendario anche su mobile. I messaggi temporanei appaiono al centro dello schermo, sopra i pannelli aperti.

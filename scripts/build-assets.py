@@ -5,7 +5,9 @@ def asset(name,text=None):
  data=text.encode('utf-8') if text is not None else (root/name).read_bytes()
  stem,ext=name.rsplit('.',1);target=stem+'.'+hashlib.sha256(data).hexdigest()[:12]+'.'+ext
  (root/target).write_bytes(data);return target
-storage=asset('storage.js')
+config=asset('supabase-config.js')
+backend=asset('supabase-backend.js',(root/'supabase-backend.js').read_text().replace('./supabase-config.js','./'+config))
+storage=asset('storage.js',(root/'storage.js').read_text().replace('./supabase-backend.js','./'+backend))
 app=asset('app.js',(root/'app.js').read_text(encoding='utf-8-sig').replace('./storage.js','./'+storage))
 nutrition=asset('nutrition.js',(root/'nutrition.js').read_text(encoding='utf-8-sig').replace('./storage.js','./'+storage))
 bootstrap=asset('bootstrap.js',(root/'bootstrap.js').read_text(encoding='utf-8').replace('./storage.js','./'+storage).replace('./app.js','./'+app).replace('./nutrition.js','./'+nutrition))

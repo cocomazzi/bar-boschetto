@@ -1,0 +1,1 @@
+{"name":"bar-boschetto-sql-tests","private":true,"type":"module","scripts":{"test":"node supabase.test.mjs"},"devDependencies":{"@electric-sql/pglite":"0.5.11"}}

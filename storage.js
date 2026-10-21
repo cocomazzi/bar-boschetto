@@ -1,14 +1,16 @@
+import {initializeAccount,remoteApi,openLogin,logout} from './supabase-backend.js';
 const KEYS=['boschetto-v1','boschetto-calendar-v1','boschetto-shopping-v1','boschetto-nutrition-v1'];
-const cloud=!['localhost','127.0.0.1','[::1]'].includes(location.hostname)&&!location.hostname.endsWith('.github.io');
+let cloud=false,booting=true;
+export function finishInitialization(){booting=false}
 let values={},catalog=null,revision=0,user='',dirty=false,sending=false,blocked=false,timer,pollTimer,importValues=null;
 const $=s=>document.querySelector(s);
 function status(text){$('#sync-message').textContent=text}
 const snapshot=()=>JSON.stringify(values);
 function backup(){try{const entries=JSON.parse(localStorage.getItem('boschetto-cloud-drafts')||'[]');entries.push({user,revision,values:JSON.parse(snapshot()),at:new Date().toISOString()});localStorage.setItem('boschetto-cloud-drafts',JSON.stringify(entries.slice(-10)))}catch{status('Spazio locale esaurito: mantieni aperta la pagina finché l’invio non termina.')}}
-async function api(path,options={}){const response=await fetch('./api/'+path,{...options,credentials:'same-origin',cache:'no-store',headers:{'Accept':'application/json',...(options.body?{'Content-Type':'application/json'}:{})}});let body;try{body=await response.json()}catch{throw Error('Risposta del backend non valida. Verifica il deployment Pages Functions.')}if(!response.ok){const e=Error(body.error||'Errore di connessione');e.code=body.error;e.status=response.status;throw e}return body}
+const api=remoteApi;
 export const appStorage={
- getItem(key){return cloud?(values[key]??null):localStorage.getItem(key)},
- setItem(key,value){if(!cloud){localStorage.setItem(key,value);return}if(blocked)throw Error('Sincronizzazione bloccata: esporta i dati e ricarica.');if(!KEYS.includes(key))throw Error('Chiave non valida');if(values[key]===value)return;values[key]=value;dirty=true;backup();status('Invio delle modifiche…');clearTimeout(timer);timer=setTimeout(flush,250)},
+ getItem(key){return values[key]??null},
+ setItem(key,value){if(!cloud){if(booting){values[key]=value;return}openLogin();throw Error('Accedi per salvare le modifiche.');}if(blocked)throw Error('Sincronizzazione bloccata: esporta i dati e ricarica.');if(!KEYS.includes(key))throw Error('Chiave non valida');if(values[key]===value)return;values[key]=value;dirty=true;backup();status('Invio delle modifiche…');clearTimeout(timer);timer=setTimeout(flush,250)},
  async catalog(){return cloud?catalog:await(await fetch('./data.json')).json()}
 };
 async function flush(){
@@ -28,8 +30,9 @@ export async function initialize(){
  $('#sync-backup').onclick=download;$('#sync-retry').onclick=()=>{blocked=false;$('#sync-retry').hidden=true;flush()};$('#sync-reload').onclick=()=>{if(dirty)backup();location.reload()};$('#sync-import').onclick=()=>previewImport();$('#import-cancel').onclick=()=>$('#import-dialog').close();
  $('#sync-upload').onclick=()=>$('#sync-file').click();$('#sync-file').onchange=async e=>{const file=e.target.files[0];if(!file)return;try{if(file.size>8000000)throw Error('File troppo grande.');const data=JSON.parse(await file.text());if(data.format!=='bar-boschetto-backup-v1')throw Error('Formato backup non riconosciuto.');const source=hasData(data.local||{})?data.local:data.shared;if(!source||Object.entries(source).some(([key,value])=>!KEYS.includes(key)||typeof value!=='string'))throw Error('Backup non valido.');previewImport(source)}catch(error){status(error.message)}finally{e.target.value=''}};
  $('#import-confirm').onclick=async()=>{const button=$('#import-confirm');button.disabled=true;try{await flush();if(dirty||blocked||sending)throw Error('Attendi il completamento dei salvataggi.');const incoming=importValues;if(!incoming)throw Error('Seleziona i dati da importare.');const result=await api('state',{method:'PUT',body:JSON.stringify({revision,values:incoming,import:true})});revision=result.revision;values=incoming;location.reload()}catch(error){$('#import-error').textContent=error.status===409?'Lo spazio condiviso è cambiato: importazione annullata. Scarica il backup e ricarica.':error.message;button.disabled=false}};
- if(!cloud){status('Modalità locale · dati salvati in questo browser');$('#sync-import').hidden=true;$('#sync-upload').hidden=true;return}
- const response=await api('bootstrap');values=response.values;catalog=response.catalog;revision=response.revision;user=response.user;status('Connesso allo spazio condiviso della famiglia');$('#sync-import').hidden=!hasData(localValues());
+ const account=await initializeAccount();cloud=!!account;$('#account-logout').onclick=async()=>{await flush();if(dirty||sending){status('Prima di uscire completa l’invio oppure scarica il backup e ricarica.');return}try{await logout()}catch{status('Uscita non riuscita. Riprova.')}};
+ if(!cloud){status('Visitatore · accedi per modificare e sincronizzare i dati');$('#sync-import').hidden=true;$('#sync-upload').hidden=true;return}
+ const response=await api('bootstrap');values=response.values;catalog=response.catalog;revision=response.revision;user=response.user;status('Connesso · dati condivisi su questo account');$('#sync-import').hidden=!hasData(localValues());
  let drafts=[];try{drafts=JSON.parse(localStorage.getItem('boschetto-cloud-drafts')||'[]')}catch{}if(drafts.some(d=>d.user===user&&JSON.stringify(d.values)!==snapshot()))status('Connesso. Sono presenti copie locali di modifiche: puoi scaricarle con Backup.');
  pollTimer=setInterval(poll,15000);document.addEventListener('visibilitychange',()=>{if(!document.hidden)poll()});window.addEventListener('online',()=>{if(dirty&&!blocked){$('#sync-retry').hidden=true;flush()}else poll()});window.addEventListener('beforeunload',e=>{if(dirty){e.preventDefault();e.returnValue=''}});
 }

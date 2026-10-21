@@ -1,6 +1,7 @@
-import {initialize} from './storage.js';
+import {initialize,finishInitialization} from './storage.js';
 const main=document.querySelector('main');main.inert=true;
-try{await initialize();await import('./app.js');await import('./nutrition.js');main.inert=false}catch(error){
- const message=error.code==='ACCESS_NOT_CONFIGURED'?'Backend in attesa di configurazione Cloudflare Access.':error.status===401?'Accedi con un account autorizzato e ricarica.':error.code==='DATABASE_NOT_INITIALIZED'?'Il database deve essere inizializzato con gli script SQL.':error.code==='CATALOG_NOT_IMPORTED'?'Importa il ricettario iniziale nel database.':error.code==='DATABASE_NOT_BOUND'?'Configura il binding D1 con nome DB.':'Impossibile collegarsi al backend. I dati locali originali restano conservati.';
+try{await initialize();await import('./app.js');await import('./nutrition.js');finishInitialization();main.inert=false}catch(error){
+ console.error('Initialization failed:',error.code||error.message);
+ const message=error.code==='SUPABASE_NOT_INITIALIZED'?'Supabase pronto per il collegamento: esegui supabase/setup.sql nel SQL Editor del progetto.':error.status===401?'La sessione è scaduta. Ricarica e accedi di nuovo.':'Impossibile collegarsi a Supabase. I dati locali originali restano conservati.';
  document.querySelector('#sync-message').textContent=message;document.querySelector('#sync-reload').hidden=false;document.querySelector('#sync-reload').onclick=()=>location.reload();
 }

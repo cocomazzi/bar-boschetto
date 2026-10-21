@@ -1,0 +1,16 @@
+import {PGlite} from '@electric-sql/pglite';
+import {readFileSync} from 'node:fs';import assert from 'node:assert/strict';
+const db=new PGlite();
+await db.exec(`create role anon;create role authenticated;create schema auth;create table auth.users(id uuid primary key);create function auth.uid() returns uuid language sql stable as $$select nullif(current_setting('request.jwt.claim.sub',true),'')::uuid$$;grant usage on schema auth to anon,authenticated;insert into auth.users values('11111111-1111-4111-8111-111111111111'),('22222222-2222-4222-8222-222222222222');`);
+const sql=readFileSync(new URL('../supabase/setup.sql',import.meta.url),'utf8');await db.exec(sql);await db.exec(sql);
+await db.exec('set role anon');await assert.rejects(db.query('select public.bb_get_state()'));await db.exec('reset role');
+const user=async id=>{await db.exec('reset role');await db.query("select set_config('request.jwt.claim.sub',$1,false)",[id]);await db.exec('set role authenticated')};
+await user('11111111-1111-4111-8111-111111111111');let r=await db.query('select public.bb_get_state() as state');assert.equal(r.rows[0].state.revision,0);
+const v={'boschetto-calendar-v1':JSON.stringify({'2026-10-21':[{id:'one',recipeId:'R001'},{id:'two',recipeId:'R001'}]})};r=await db.query('select public.bb_save_state($1,$2::jsonb,$3) as state',[0,JSON.stringify(v),true]);assert.equal(r.rows[0].state.revision,1);
+await assert.rejects(db.query('select public.bb_save_state(0,$1::jsonb,false)',[JSON.stringify(v)]),/STATE_CONFLICT/);await assert.rejects(db.query('select public.bb_save_state(1,$1::jsonb,true)',[JSON.stringify(v)]),/IMPORT_REQUIRES_EMPTY_STATE/);
+await assert.rejects(db.query("update public.bb_account_state set revision=42"),/permission denied/);
+await user('22222222-2222-4222-8222-222222222222');assert.equal((await db.query('select * from public.bb_account_state')).rows.length,0);const state2=(await db.query('select public.bb_get_state() as state')).rows[0].state;assert.deepEqual(state2,{revision:0,values:{}});
+await user('11111111-1111-4111-8111-111111111111');assert.deepEqual((await db.query('select public.bb_get_state() as state')).rows[0].state.values,v);
+const bad={'boschetto-v1':JSON.stringify({customRecipes:[{recipe_id:'<bad>'}]})};await assert.rejects(db.query('select public.bb_save_state(1,$1::jsonb,false)',[JSON.stringify(bad)]),/INVALID_RECIPE/);
+await assert.rejects(db.query('select public.bb_save_state(1,$1::jsonb,false)',[JSON.stringify({evil:'{}'})]),/INVALID_STATE/);
+console.log('PASS PostgreSQL: schema idempotente, login richiesto, RLS, isolamento account, RPC/CAS, import, validazione');await db.close();

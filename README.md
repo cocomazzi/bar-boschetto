@@ -1,55 +1,37 @@
 # Bar Boschetto
 
-Web app statica per ricettario familiare, calendario settimanale e lista della spesa.
+Ricettario familiare con calendario settimanale, catalogo ingredienti e lista della spesa.
 
-## Struttura e pubblicazione
+## Backend Supabase
 
-Il codice è nella radice del branch `main`. La cartella `dist/` è stata rimossa.
+Il sito è pubblico e consultabile senza login. Accedendo con lo stesso account Supabase Auth su più dispositivi si condividono ricette, calendario, nutrienti e spesa. Le regole RLS isolano i dati di account differenti. Cloudflare Pages e GitHub Pages ospitano solo il frontend.
 
-- `index.html`: interfaccia e moduli.
-- `app.js`: ricette, filtri, calendario e lista della spesa.
-- `nutrition.js`: catalogo nutrizionale compilabile.
-- `style.css`: stile responsive.
-- `data.json`: 99 ricette, 592 associazioni e 190 ingredienti importati dall’Excel.
+Per attivare il progetto, seguire [SUPABASE_SETUP.md](SUPABASE_SETUP.md): eseguire `supabase/setup.sql` nel SQL Editor e creare l’account in Authentication → Users. Collegare GitHub a Supabase non esegue automaticamente il file SQL.
 
-I file con hash nel nome sono asset di pubblicazione per evitare copie obsolete in cache. Dopo modifiche a JS/CSS, rigenerare il file con hash e aggiornare il riferimento in `index.html`.
-
-GitHub Pages pubblica da `main`, cartella `/ (root)`. `.nojekyll` abilita la pubblicazione statica. La vecchia configurazione Sites che puntava a `dist/` è stata rimossa.
-
-Per l’anteprima locale servire la radice via HTTP, ad esempio `python -m http.server 8770`.
+La configurazione pubblica è in `supabase-config.js`. Non inserire Secret key, service_role o password nella repository. Cloudflare Access e il binding D1 non sono più richiesti. Il precedente database D1 non viene cancellato.
 
 ## Funzioni
 
-Ricerca bilingue IT/NL, categorie espandibili, tag multipli, viste Categorie e Tabella, creazione e modifica di ricette, ingredienti e note condivisi tra le viste. Calendario settimanale sticky con trascinamento e scelta a clic. Spesa laterale richiudibile con selezione singola, quantità e unità modificabili, aggiunta manuale, aggregazione, cestino e copia.
+Categorie espandibili e vista tabella, ricerca bilingue IT/NL, tag multipli, creazione e modifica ricette, ingredienti e note. Calendario sticky con più ricette al giorno e trascinamento. Spesa laterale con contributi per singolo inserimento, prodotti manuali, quantità e unità modificabili, riordino, cestino e copia. Catalogo nutrizionale compilabile per 100 g o porzione.
 
-Catalogo nutrizionale compilabile per 100 g o porzione, senza stime automatiche.
+## Salvataggio e trasferimento
 
-## Salvataggio
+Lo stato dell’account è salvato in Supabase con revisione atomica. Le modifiche non inviate restano recuperabili nei backup locali. I conflitti tra dispositivi non sovrascrivono silenziosamente dati remoti. Controllare il messaggio “Sincronizzato con la famiglia” dopo le modifiche.
 
-Su Cloudflare Pages lo stato familiare viene sincronizzato in D1 tramite API protette da Cloudflare Access. Su GitHub Pages e localhost resta attiva la modalità locale. Nessuna modifica viene scritta automaticamente nell’Excel originale.
+I dati locali precedenti vengono conservati e possono essere importati esplicitamente in uno spazio account ancora vuoto. Backup e Carica backup trasferiscono dati tra domini diversi. Non vengono modificati automaticamente l’Excel originale o i file del ricettario nella repository.
 
+## File e pubblicazione
 
-## Calendario e lista della spesa
+Il codice è nella radice di `main`; non esiste una copia in `dist/`. Gli asset con hash prevengono problemi di cache.
 
-Ogni ricetta pianificata aggiunge un contributo indipendente alla spesa. Rimuoverla da un giorno elimina solo quel contributo; restano gli altri giorni e le selezioni manuali. Il cestino e Svuota escludono anche le voci del calendario dalla spesa senza cancellare il piano. Rimuovere e riassegnare la ricetta ripristina i suoi ingredienti.
+- `app.js`, `nutrition.js`, `style.css`: interfaccia e funzionalità.
+- `storage.js`, `supabase-backend.js`, `bootstrap.js`: sincronizzazione e login.
+- `data.json`: ricettario originale (99 ricette, 592 associazioni, 190 ingredienti).
+- `supabase/setup.sql`: schema, RLS, validazione e funzioni di salvataggio.
+- `vendor/`: client ufficiale Supabase 2.118.0 con licenza MIT.
 
-La spesa si riordina trascinando le righe oppure con le frecce su/giù. L’ordine è salvato nel browser ed è rispettato anche nella copia della lista. Pop-up temporanei confermano l’aggiunta di un ingrediente singolo e la modifica di una ricetta.
+Dopo una modifica eseguire `python scripts/build-assets.py`. Pubblicare la radice della repository. Il client Supabase è incluso localmente; non occorre un build npm per il sito.
 
+## Test SQL
 
-## Navigazione
-
-Barra sticky con Ricettario, Calendario, Catalogo ingredienti e Lista della spesa. Le ancore rispettano l’ingombro di barra e calendario anche su mobile. I messaggi temporanei appaiono al centro dello schermo, sopra i pannelli aperti.
-
-
-## Più ricette al giorno
-
-Ogni giorno contiene una lista di ricette con identificatori di inserimento indipendenti. Si possono aggiungere ricette con + o trascinamento anche su giorni già occupati. La stessa ricetta può essere inserita più volte; ogni inserimento contribuisce separatamente alla spesa e può essere rimosso singolarmente. I calendari precedenti vengono migrati automaticamente preservando gli inserimenti e le esclusioni della spesa.
-
-
-## Backend Cloudflare D1
-
-Leggere [CLOUDFLARE_SETUP.md](CLOUDFLARE_SETUP.md) per configurare Access, le variabili `ACCESS_TEAM_DOMAIN`/`ACCESS_AUD`, il binding `DB` e gli script SQL. Il database si chiama `bar-boschetto-db`. Il backend rifiuta l’accesso finché la configurazione privata non è completata.
-
-Ricettario originale in tre tabelle; stato familiare JSON con revisione atomica per modifiche, tag, calendario, spesa e nutrienti. Conflitti tra dispositivi segnalati senza sovrascrittura silenziosa. Backup JSON e importazione esplicita disponibili; nessun import automatico tra domini.
-
-Per aggiornare gli asset: `python scripts/build-assets.py`. Test del backend: `node --test tests/backend.test.mjs` (Node 22+ con node:sqlite).
+`npm install --prefix tests --ignore-scripts` e `npm test --prefix tests` eseguono test PostgreSQL locali tramite PGlite senza collegarsi al progetto remoto o creare utenti reali.

@@ -39,3 +39,8 @@ La spesa si riordina trascinando le righe oppure con le frecce su/giù. L’ordi
 ## Navigazione
 
 Barra sticky con Ricettario, Calendario, Catalogo ingredienti e Lista della spesa. Le ancore rispettano l’ingombro di barra e calendario anche su mobile. I messaggi temporanei appaiono al centro dello schermo, sopra i pannelli aperti.
+
+
+## Più ricette al giorno
+
+Ogni giorno contiene una lista di ricette con identificatori di inserimento indipendenti. Si possono aggiungere ricette con + o trascinamento anche su giorni già occupati. La stessa ricetta può essere inserita più volte; ogni inserimento contribuisce separatamente alla spesa e può essere rimosso singolarmente. I calendari precedenti vengono migrati automaticamente preservando gli inserimenti e le esclusioni della spesa.

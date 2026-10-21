@@ -26,7 +26,7 @@ Catalogo nutrizionale compilabile per 100 g o porzione, senza stime automatiche.
 
 ## Salvataggio
 
-Modifiche e dati personali restano nel localStorage del browser. Non vengono sincronizzati tra dispositivi, GitHub o Excel.
+Su Cloudflare Pages lo stato familiare viene sincronizzato in D1 tramite API protette da Cloudflare Access. Su GitHub Pages e localhost resta attiva la modalità locale. Nessuna modifica viene scritta automaticamente nell’Excel originale.
 
 
 ## Calendario e lista della spesa
@@ -44,3 +44,12 @@ Barra sticky con Ricettario, Calendario, Catalogo ingredienti e Lista della spes
 ## Più ricette al giorno
 
 Ogni giorno contiene una lista di ricette con identificatori di inserimento indipendenti. Si possono aggiungere ricette con + o trascinamento anche su giorni già occupati. La stessa ricetta può essere inserita più volte; ogni inserimento contribuisce separatamente alla spesa e può essere rimosso singolarmente. I calendari precedenti vengono migrati automaticamente preservando gli inserimenti e le esclusioni della spesa.
+
+
+## Backend Cloudflare D1
+
+Leggere [CLOUDFLARE_SETUP.md](CLOUDFLARE_SETUP.md) per configurare Access, le variabili `ACCESS_TEAM_DOMAIN`/`ACCESS_AUD`, il binding `DB` e gli script SQL. Il database si chiama `bar-boschetto-db`. Il backend rifiuta l’accesso finché la configurazione privata non è completata.
+
+Ricettario originale in tre tabelle; stato familiare JSON con revisione atomica per modifiche, tag, calendario, spesa e nutrienti. Conflitti tra dispositivi segnalati senza sovrascrittura silenziosa. Backup JSON e importazione esplicita disponibili; nessun import automatico tra domini.
+
+Per aggiornare gli asset: `python scripts/build-assets.py`. Test del backend: `node --test tests/backend.test.mjs` (Node 22+ con node:sqlite).

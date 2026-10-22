@@ -26,7 +26,8 @@ Il codice è nella radice di `main`; non esiste una copia in `dist/`. Gli asset 
 
 - `app.js`, `nutrition.js`, `style.css`: interfaccia e funzionalità.
 - `storage.js`, `supabase-backend.js`, `bootstrap.js`: sincronizzazione e login.
-- `data.json`: ricettario originale (99 ricette, 592 associazioni, 190 ingredienti).
+- `data.json`: 99 ricette, 592 associazioni e copia del catalogo NEVO per la consultazione senza login.
+- `supabase/ingredients-nevo2025.sql`: tabella ingredienti online, 190 ingredienti e 129 abbinamenti nutrizionali provvisori.
 - `supabase/setup.sql`: schema, RLS, validazione e funzioni di salvataggio.
 - `vendor/`: client ufficiale Supabase 2.118.0 con licenza MIT.
 
@@ -35,3 +36,11 @@ Dopo una modifica eseguire `python scripts/build-assets.py`. Pubblicare la radic
 ## Test SQL
 
 `npm install --prefix tests --ignore-scripts` e `npm test --prefix tests` eseguono test PostgreSQL locali tramite PGlite senza collegarsi al progetto remoto o creare utenti reali.
+
+## Catalogo ingredienti NEVO 2025
+
+Dopo il login, il catalogo viene letto da `public.bb_ingredients` tramite `bb_get_ingredients`. Il ricettario continua a provenire da `data.json`. Prima di pubblicare questo aggiornamento, eseguire `supabase/ingredients-nevo2025.sql` nel progetto Supabase già configurato.
+
+La migrazione compila solo campi NULL e non modifica righe con `manually_verified=true`. Gli zeri esistenti sono preservati. Codice NEVO, nome olandese, confidenza e motivazione sono registrati per ciascun campo in `nutrient_sources`. I 61 ingredienti senza un abbinamento affidabile rimangono senza valori.
+
+Le correzioni nell’app continuano a essere salvate nello stato dell’account (`boschetto-nutrition-v1`) e hanno precedenza sui valori del catalogo di base. Non vengono sostituite dalla migrazione. Gli utenti dell’app possono leggere la tabella condivisa ma non modificarla direttamente: le correzioni manuali restano isolate per account.

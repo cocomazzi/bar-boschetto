@@ -24,6 +24,6 @@ export async function remoteApi(path,options={}){
  const method=options.method||'GET';let result;
  if(method==='PUT'){const body=JSON.parse(options.body);result=await client.rpc('bb_save_state',{p_revision:body.revision,p_values:body.values,p_import:!!body.import})}else result=await client.rpc('bb_get_state');
  if(result.error){const error=Error(result.error.message);error.code=result.error.code;error.status=result.error.code==='40001'?409:['42501','PGRST301','PGRST303'].includes(result.error.code)?401:500;if(result.error.code==='PGRST202'||result.error.code==='42P01')error.code='SUPABASE_NOT_INITIALIZED';throw error}
- if(path==='bootstrap'){const response=await fetch('./data.json',{cache:'no-cache'});if(!response.ok)throw Error('Ricettario non disponibile');return {...result.data,user:account.id,catalog:await response.json()}}
+ if(path==='bootstrap'){const response=await fetch('./data.json',{cache:'no-cache'});if(!response.ok)throw Error('Ricettario non disponibile');const catalog=await response.json();const ingredients=await client.rpc('bb_get_ingredients');if(ingredients.error)throw ingredients.error;if(!Array.isArray(ingredients.data)||ingredients.data.length===0)throw Error('Catalogo ingredienti online non disponibile');catalog.catalogo_ingredienti=ingredients.data;return {...result.data,user:account.id,catalog}}
  return result.data;
 }

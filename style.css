@@ -45,3 +45,5 @@ button.family{background:var(--card);color:var(--green)}.catalog-row{width:100%;
 .nutrition-subtotal{color:#6F655D;font-size:.85rem}.nutrition-subtotal th{font-weight:400}.nutrition-missing{color:#8A3D2E}.nutrition-issues{padding-left:22px;font-size:.9rem}.nutrition-issues li{margin:6px 0}
 #nutrition-conversions{margin:18px 0}#nutrition-conversions summary{cursor:pointer;font-weight:600}#nutrition-conversion-fields{display:grid;gap:14px}#nutrition-conversion-fields input{max-width:200px}
 @media(max-width:540px){.nutrition-share-inputs{gap:10px}.recipe-nutrition-table th,.recipe-nutrition-table td{padding:8px 5px;font-size:.82rem}#recipe-nutrition-dialog{padding:16px}.nutrition-share-inputs p{font-size:.85rem}}
+
+#nutrition-ratios{margin:18px 0}#nutrition-ratios summary{cursor:pointer;font-weight:600}

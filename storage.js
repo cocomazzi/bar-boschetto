@@ -1,3 +1,4 @@
+import {preserveNutritionSettings} from './recipe-nutrition-model.js';
 import {initializeAccount,remoteApi,openLogin,logout} from './supabase-backend.js';
 const KEYS=['boschetto-v1','boschetto-calendar-v1','boschetto-shopping-v1','boschetto-nutrition-v1'];
 let cloud=false,booting=true;
@@ -10,7 +11,7 @@ function backup(){try{const entries=JSON.parse(localStorage.getItem('boschetto-c
 const api=remoteApi;
 export const appStorage={
  getItem(key){return values[key]??null},
- setItem(key,value){if(!cloud){if(booting){values[key]=value;return}openLogin();throw Error('Accedi per salvare le modifiche.');}if(blocked)throw Error('Sincronizzazione bloccata: esporta i dati e ricarica.');if(!KEYS.includes(key))throw Error('Chiave non valida');if(values[key]===value)return;values[key]=value;dirty=true;backup();status('Invio delle modifiche…');clearTimeout(timer);timer=setTimeout(flush,250)},
+ setItem(key,value){if(key==='boschetto-v1')value=JSON.stringify(preserveNutritionSettings(JSON.parse(values[key]||'{}'),JSON.parse(value)));if(!cloud){if(booting){values[key]=value;return}openLogin();throw Error('Accedi per salvare le modifiche.');}if(blocked)throw Error('Sincronizzazione bloccata: esporta i dati e ricarica.');if(!KEYS.includes(key))throw Error('Chiave non valida');if(values[key]===value)return;values[key]=value;dirty=true;backup();status('Invio delle modifiche…');clearTimeout(timer);timer=setTimeout(flush,250)},
  async catalog(){return cloud?catalog:await(await fetch('./data.json')).json()}
 };
 async function flush(){
@@ -20,7 +21,7 @@ async function flush(){
  finally{sending=false;if(dirty&&!blocked&&$('#sync-retry').hidden)timer=setTimeout(flush,250)}
 }
 function localValues(){const result={};for(const key of KEYS){const value=localStorage.getItem(key);if(value!==null)result[key]=value}return result}
-function hasData(data){try{return Object.entries(data).some(([key,v])=>{const o=JSON.parse(v);if(key==='boschetto-v1')return ['customRecipes','individual','manualItems','selected'].some(k=>o[k]?.length)||['editedRecipes','recipeTags','amounts','units'].some(k=>Object.keys(o[k]||{}).length);if(key==='boschetto-shopping-v1')return o.order?.length||o.excluded?.length;return Object.keys(o).length})}catch{return false}}
+function hasData(data){try{return Object.entries(data).some(([key,v])=>{const o=JSON.parse(v);if(key==='boschetto-v1')return ['customRecipes','individual','manualItems','selected'].some(k=>o[k]?.length)||['editedRecipes','recipeTags','amounts','units'].some(k=>Object.keys(o[k]||{}).length)||Object.keys(o.nutritionSettings||{}).length;if(key==='boschetto-shopping-v1')return o.order?.length||o.excluded?.length;return Object.keys(o).length})}catch{return false}}
 function download(){const blob=new Blob([JSON.stringify({format:'bar-boschetto-backup-v1',exportedAt:new Date().toISOString(),local:localValues(),shared:cloud?values:null,drafts:JSON.parse(localStorage.getItem('boschetto-cloud-drafts')||'[]')},null,2)],{type:'application/json'});const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='bar-boschetto-backup.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000)}
 function previewImport(local=localValues()){if(!hasData(local)){status('Nessun dato personale da importare.');return}if(hasData(values)){status('Lo spazio condiviso contiene già dati. Scarica il backup: l’importazione automatica non sovrascrive dati esistenti.');return}importValues=local;
  const recipe=JSON.parse(local['boschetto-v1']||'{}'),plan=JSON.parse(local['boschetto-calendar-v1']||'{}'),nutrition=JSON.parse(local['boschetto-nutrition-v1']||'{}');$('#import-summary').textContent=`Ricette nuove: ${recipe.customRecipes?.length||0}. Ricette modificate: ${Object.keys(recipe.editedRecipes||{}).length}. Giorni pianificati: ${Object.keys(plan).length}. Schede nutrizionali: ${Object.keys(nutrition).length}. Saranno importate anche selezioni, prodotti manuali e ordine della spesa. I dati locali originali saranno conservati.`;$('#import-confirm').disabled=false;$('#import-error').textContent='';$('#import-dialog').showModal();

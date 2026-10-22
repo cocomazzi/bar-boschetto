@@ -30,3 +30,18 @@ button.family{background:var(--card);color:var(--green)}.catalog-row{width:100%;
 .sync-bar{max-width:1400px;margin:auto;padding:12px 5.5%;font-size:12px;display:flex;align-items:center;justify-content:space-between;gap:12px;color:var(--green)}.sync-bar>div{display:flex;gap:8px;flex-wrap:wrap}.sync-bar button{border:1px solid var(--border);border-radius:6px;background:var(--card);color:var(--green);font-size:11px;padding:7px 9px}#import-error{color:#B85A4B;font-size:12px}@media(max-width:600px){.sync-bar{flex-direction:column;align-items:flex-start}}
 
 .account-controls{display:flex;align-items:center;gap:12px}.account-controls .family{background:var(--card);color:var(--green)}#account-email{max-width:200px;overflow-wrap:anywhere}#login-error{font-size:12px;color:#B85A4B}@media(max-width:600px){.account-controls{gap:6px}#account-email{font-size:10px;max-width:135px}}
+
+.recipe-nutrition-button{border:1px solid var(--border,#D8C6B4);background:#FFF9F2;color:#24422F;border-radius:16px;padding:4px 10px;font:inherit;font-size:.8rem;cursor:pointer}
+#recipe-nutrition-dialog{width:min(760px,calc(100vw - 24px));max-height:90dvh;overflow:auto}
+#recipe-nutrition-dialog fieldset{border:1px solid #D8C6B4;border-radius:10px;padding:12px;margin:16px 0}
+#recipe-nutrition-dialog legend{font-weight:600;padding:0 6px}
+.nutrition-share-inputs{display:grid;grid-template-columns:minmax(130px,1fr) minmax(130px,1fr);align-items:center;gap:16px}
+.nutrition-share-inputs p{margin:0}.nutrition-share-inputs input{max-width:160px}
+#recipe-nutrition-dialog .nutrition-override{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+#recipe-nutrition-dialog .nutrition-override input{width:auto}
+.recipe-nutrition-table-wrap{overflow-x:auto;margin-top:20px}.recipe-nutrition-table{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}
+.recipe-nutrition-table caption{text-align:left;font-weight:600;margin-bottom:10px}.recipe-nutrition-table th,.recipe-nutrition-table td{padding:10px 8px;border-bottom:1px solid #D8C6B4;text-align:right;white-space:nowrap}
+.recipe-nutrition-table th:first-child{text-align:left;white-space:normal}.recipe-nutrition-table thead{background:#EFE3D4}.recipe-nutrition-table small{display:block;color:#9C432F;font-weight:400}
+.nutrition-subtotal{color:#6F655D;font-size:.85rem}.nutrition-subtotal th{font-weight:400}.nutrition-missing{color:#8A3D2E}.nutrition-issues{padding-left:22px;font-size:.9rem}.nutrition-issues li{margin:6px 0}
+#nutrition-conversions{margin:18px 0}#nutrition-conversions summary{cursor:pointer;font-weight:600}#nutrition-conversion-fields{display:grid;gap:14px}#nutrition-conversion-fields input{max-width:200px}
+@media(max-width:540px){.nutrition-share-inputs{gap:10px}.recipe-nutrition-table th,.recipe-nutrition-table td{padding:8px 5px;font-size:.82rem}#recipe-nutrition-dialog{padding:16px}.nutrition-share-inputs p{font-size:.85rem}}

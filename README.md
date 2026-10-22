@@ -44,3 +44,18 @@ Dopo il login, il catalogo viene letto da `public.bb_ingredients` tramite `bb_ge
 La migrazione compila solo campi NULL e non modifica righe con `manually_verified=true`. Gli zeri esistenti sono preservati. Codice NEVO, nome olandese, confidenza e motivazione sono registrati per ciascun campo in `nutrient_sources`. I 61 ingredienti senza un abbinamento affidabile rimangono senza valori.
 
 Le correzioni nell’app continuano a essere salvate nello stato dell’account (`boschetto-nutrition-v1`) e hanno precedenza sui valori del catalogo di base. Non vengono sostituite dalla migrazione. Gli utenti dell’app possono leggere la tabella condivisa ma non modificarla direttamente: le correzioni manuali restano isolate per account.
+
+
+## Totali nutrizionali delle ricette e ripartizione
+
+Ogni ricetta, sia nella vista Categorie che nella vista Tabella, ha il pulsante **Nutrienti**. Le quantità sono quelle attualmente mostrate nel ricettario, incluse eventuali correzioni. Per ogni ingrediente si calcola `grammi × valore per 100 g / 100`; si sommano poi i contributi. I valori del catalogo e le schede degli ingredienti non vengono modificati.
+
+Il rapporto iniziale è 55% alla prima persona e 45% alla seconda, sull’intera ricetta. Il numero di porzioni della ricetta non divide ulteriormente questi totali. Nella finestra Nutrienti si può correggere il rapporto generale o attivare un rapporto specifico per la ricetta. Il secondo valore viene sempre calcolato come `100 − prima persona`. Disattivare il rapporto specifico ripristina quello generale. **Salva rapporti e pesi** salva le impostazioni nell’account; **Annulla** scarta l’anteprima.
+
+Le unità di peso g, kg, hg e mg sono convertite direttamente. Per ml, litri, pezzi, spicchi, confezioni e altre unità occorre indicare un peso per ingrediente nel pannello Pesi. I liquidi usano grammi per ml, senza assumere densità pari a 1. Un peso configurato vale in tutte le ricette con lo stesso ID ingrediente e unità normalizzata. Per `porzione` può essere usato il peso porzione già presente nella scheda ingrediente. Le quantità q.b., vuote, negative o non interpretabili restano sconosciute.
+
+I dati manuali per 100 g hanno precedenza sui valori del catalogo, inclusi gli zeri e i campi lasciati vuoti. I dati per porzione sono conservati separatamente e non sostituiscono automaticamente quelli per 100 g. Quando manca un contributo, il totale completo del nutriente e le relative quote restano sconosciuti. L’interfaccia mostra separatamente il subtotale noto e gli ingredienti da completare. L’arrotondamento riguarda solo la visualizzazione.
+
+Rapporti e pesi sono salvati nella proprietà aggiuntiva `nutritionSettings` di `boschetto-v1`, con mappe indicizzate per ID ricetta e ingrediente. Il livello di salvataggio conserva questa proprietà anche quando il ricettario viene salvato dalle funzioni già esistenti. Lo schema Supabase attuale supporta questa estensione senza nuove tabelle o migrazioni. La logica della spesa, le sue quantità e la selezione degli ingredienti non dipendono dalle quote nutrizionali.
+
+Verifica: `node --test tests-nutrition.mjs tests-persistence-ui.mjs`. I test coprono calcoli, rapporti globali e specifici, conversioni, missing/zero, schede manuali, conservazione delle impostazioni e regressioni della spesa sulle ricette esistenti.

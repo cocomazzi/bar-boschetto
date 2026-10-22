@@ -47,3 +47,5 @@ button.family{background:var(--card);color:var(--green)}.catalog-row{width:100%;
 @media(max-width:540px){.nutrition-share-inputs{gap:10px}.recipe-nutrition-table th,.recipe-nutrition-table td{padding:8px 5px;font-size:.82rem}#recipe-nutrition-dialog{padding:16px}.nutrition-share-inputs p{font-size:.85rem}}
 
 #nutrition-ratios{margin:18px 0}#nutrition-ratios summary{cursor:pointer;font-weight:600}
+.recipe-table .recipe-meta{display:flex}
+.recipe-table .recipe-meta .category-label,.recipe-table .recipe-meta .pill,.recipe-table .recipe-meta .edit-tags{display:none}

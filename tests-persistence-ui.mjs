@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs/promises';
 import vm from 'node:vm';
 import * as model from './recipe-nutrition-model.js';
+import * as shoppingModel from './shopping-model.js';
 const db=JSON.parse(await fs.readFile(new URL('./data.json',import.meta.url)));
 function dom(){const nodes=new Map(),listeners=new Map();function el(s){if(!nodes.has(s))nodes.set(s,{value:'',innerHTML:'',textContent:'',dataset:{},children:[],checked:false,disabled:false,hidden:false,open:false,addEventListener(type,fn){listeners.set(s+':'+type,fn)},querySelectorAll(){return[]},getBoundingClientRect(){return {height:0}},classList:{toggle(){}},setAttribute(){},focus(){},showModal(){this.open=true},close(){this.open=false},checkValidity(){return true},reportValidity(){return true},setCustomValidity(){}});return nodes.get(s)};return {el,listeners,document:{querySelector:el,createElement:()=>el('dialog'),documentElement:{style:{setProperty(){}}},body:{append(){}},addEventListener(type,fn){listeners.set('document:'+type,fn)},activeElement:{tagName:'BODY'}}};}
 test('actual storage retains settings on cookbook saves and protects settings-only state from import',async()=>{
@@ -23,7 +24,7 @@ test('recipe dialog previews, saves and reloads global/recipe ratios without tou
 test('shopping keeps full ingredient quantities; displayed recipe resolver never selects or mutates',async()=>{
  const src=await fs.readFile(new URL('./app.js',import.meta.url),'utf8');
  const d=dom(),values={'boschetto-v1':JSON.stringify({nutritionSettings:{defaultFirstPercent:75}})};
- const c={...d,console,Intl,JSON,Object,Map,Set,window:{},navigator:{clipboard:{}},appStorage:{getItem:k=>values[k]??null,setItem:(k,v)=>{const previous=JSON.parse(values[k]||'{}');values[k]=k==='boschetto-v1'?JSON.stringify(model.preserveNutritionSettings(previous,JSON.parse(v))):v},catalog:async()=>db},setTimeout:()=>0,clearTimeout(){}};
+ const c={...shoppingModel,...d,console,Intl,JSON,Object,Map,Set,window:{},navigator:{clipboard:{}},appStorage:{getItem:k=>values[k]??null,setItem:(k,v)=>{const previous=JSON.parse(values[k]||'{}');values[k]=k==='boschetto-v1'?JSON.stringify(model.preserveNutritionSettings(previous,JSON.parse(v))):v},catalog:async()=>db},setTimeout:()=>0,clearTimeout(){}};
  const code=src.replace(/^import .*;\r?\n/gm,'').replace('export function getRecipeForNutrition','function getRecipeForNutrition');
  await vm.runInNewContext(`(async()=>{${code}\nconst r=recipes[0];individual.add(lineKey(r,0));render();const before=window.shoppingText;const view=getRecipeForNutrition(r.recipe_id);globalThis.shoppingBefore=before;globalThis.view=view;globalThis.unchanged=before===window.shoppingText;amounts[lineKey(r,0)]='250';units[lineKey(r,0)]='g';globalThis.effective=getRecipeForNutrition(r.recipe_id).ingredients[0].quantity;persist();})()`,c);
  assert.equal(c.unchanged,true);assert.match(c.shoppingBefore,/pasta: 160 g/);assert.equal(c.effective,'250');assert.equal(JSON.parse(values['boschetto-v1']).nutritionSettings.defaultFirstPercent,75);

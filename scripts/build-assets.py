@@ -5,6 +5,7 @@ def asset(name,text=None):
  data=text.encode('utf-8') if text is not None else (root/name).read_bytes()
  stem,ext=name.rsplit('.',1);target=stem+'.'+hashlib.sha256(data).hexdigest()[:12]+'.'+ext
  (root/target).write_bytes(data);return target
+dragScroll=asset('drag-scroll.js')
 recipeIds=asset('recipe-ids.js')
 shoppingModel=asset('shopping-model.js')
 model=asset('recipe-nutrition-model.js')
@@ -14,7 +15,7 @@ storage=asset('storage.js',(root/'storage.js').read_text(encoding='utf-8-sig').r
 app=asset('app.js',(root/'app.js').read_text(encoding='utf-8-sig').replace('./storage.js','./'+storage).replace('./shopping-model.js','./'+shoppingModel).replace('./recipe-ids.js','./'+recipeIds))
 nutrition=asset('nutrition.js',(root/'nutrition.js').read_text(encoding='utf-8-sig').replace('./storage.js','./'+storage))
 recipeNutrition=asset('recipe-nutrition.js',(root/'recipe-nutrition.js').read_text(encoding='utf-8').replace('./storage.js','./'+storage).replace('./app.js','./'+app).replace('./recipe-nutrition-model.js','./'+model))
-interface=asset('interface.js',(root/'interface.js').read_text(encoding='utf-8').replace('./app.js','./'+app))
+interface=asset('interface.js',(root/'interface.js').read_text(encoding='utf-8').replace('./app.js','./'+app).replace('./drag-scroll.js','./'+dragScroll))
 bootstrap=asset('bootstrap.js',(root/'bootstrap.js').read_text(encoding='utf-8').replace('./storage.js','./'+storage).replace('./app.js','./'+app).replace('./nutrition.js','./'+nutrition).replace('./recipe-nutrition.js','./'+recipeNutrition).replace('./interface.js','./'+interface))
 css=asset('style.css');html=(root/'index.html').read_text(encoding='utf-8-sig')
 html=re.sub(r'href="style(?:\.[a-f0-9]{12})?\.css"','href="'+css+'"',html)

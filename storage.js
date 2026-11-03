@@ -35,6 +35,6 @@ export async function initialize(){
  const account=await initializeAccount();cloud=!!account;$('#account-logout').onclick=async()=>{await flush();if(dirty||sending){status('Prima di uscire completa l’invio oppure scarica il backup e ricarica.');return}try{await logout()}catch{status('Uscita non riuscita. Riprova.')}};
  if(!cloud){status('Visitatore · accedi per modificare e sincronizzare i dati');$('#sync-import').hidden=true;$('#sync-upload').hidden=true;return}
  const response=await api('bootstrap');values=response.values;catalog=response.catalog;revision=response.revision;user=response.user;const migrated=migrateRecipeIds(values,catalog);if(migrated!==values){backup();values=migrated;dirty=true;await flush()}status('Connesso · dati condivisi su questo account');$('#sync-import').hidden=!hasData(localValues());
- let drafts=[];try{drafts=JSON.parse(localStorage.getItem('boschetto-cloud-drafts')||'[]')}catch{}if(drafts.some(d=>d.user===user&&JSON.stringify(d.values)!==snapshot()))status('Connesso. Sono presenti copie locali di modifiche: puoi scaricarle con Backup.');
+ let drafts=[];try{drafts=JSON.parse(localStorage.getItem('boschetto-cloud-drafts')||'[]')}catch{}
  pollTimer=setInterval(poll,15000);document.addEventListener('visibilitychange',()=>{if(!document.hidden)poll()});window.addEventListener('online',()=>{if(dirty&&!blocked){$('#sync-retry').hidden=true;flush()}else poll()});window.addEventListener('beforeunload',e=>{if(dirty){e.preventDefault();e.returnValue=''}});
 }

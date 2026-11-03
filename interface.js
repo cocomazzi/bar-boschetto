@@ -8,7 +8,7 @@ $('#open-settings').onclick=()=>settings.showModal();$('#close-settings').onclic
 const manual=$('.manual-add');manual.querySelector('summary').innerHTML='<span id="manual-plus" role="button" aria-label="Aggiungi alla spesa">+</span>';manual.addEventListener('toggle',()=>{if(manual.open)$('#manual-name').focus()});
 const options=document.createElement('details');options.className='manual-options';options.innerHTML='<summary aria-label="Opzioni aggiunta manuale">⚙</summary>';const form=$('#manual-form');for(const id of ['manual-quantity','manual-unit','manual-store']){const label=$('#'+id).closest('label');options.append(label)}form.insertBefore(options,form.querySelector('button[type=submit]'));
 manual.querySelector('summary').innerHTML='<span class="manual-add-symbol">+</span><span>Aggiungi un prodotto</span>';
-document.querySelector('header .account-controls').prepend($('#open-settings'));$('#open-settings').innerHTML='<svg class="restaurant-menu" viewBox="0 0 48 48" aria-hidden="true"><rect x="8" y="5" width="32" height="38" rx="4"/><path d="M15 15h18M15 21h18M15 27h12M15 33h14"/><path class="menu-spine" d="M12 5v38"/></svg>';$('#open-settings').setAttribute('aria-label','Impostazioni');
+document.querySelector('header .account-controls').prepend($('#open-settings'));$('#open-settings').innerHTML='<img class="settings-menu-image" src="menu-neon.png" alt="">';$('#open-settings').setAttribute('aria-label','Impostazioni');
 for(const dialog of document.querySelectorAll('dialog')){let backdrop=false;dialog.addEventListener('pointerdown',e=>{const r=dialog.getBoundingClientRect();backdrop=e.target===dialog&&(e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom)});dialog.addEventListener('click',e=>{if(backdrop&&e.target===dialog)dialog.close();backdrop=false})}
 function navigate(){const hash=location.hash.slice(1);const page=hash==='ricettario'?'recipes':hash==='calendario'?'calendar':'categories';showPage(page);$('#recipes').removeAttribute('aria-labelledby');$('#recipes').setAttribute('aria-label',page==='recipes'?'Ricettario':'Categorie');for(const [id,value] of [['nav-categories','categories'],['nav-recipes','recipes'],['nav-calendar','calendar']]){$('#'+id).toggleAttribute('aria-current',page===value);}}
 window.addEventListener('hashchange',navigate);navigate();
@@ -29,3 +29,9 @@ if('serviceWorker' in navigator)navigator.serviceWorker.register('./sw.js').catc
 // Prevent the browser from taking over an already activated long-press drag.
 document.addEventListener('touchmove',e=>{if(!drag)return;const touch=e.touches[0];if(touch){drag.x=touch.clientX;drag.y=touch.clientY}e.preventDefault()},{passive:false,capture:true});
 document.addEventListener('contextmenu',e=>{if(e.target.closest('[data-shop-key],[data-plan-id]'))e.preventDefault()});
+
+const notes=$('.notes-editor'),expand=$('#expand-notes');
+function expandNotes(on){notes.classList.toggle('is-expanded',on);expand.setAttribute('aria-expanded',String(on));expand.setAttribute('aria-label',on?'Riduci note e procedimento':'Espandi note e procedimento');$('#new-notes').focus()}
+expand.onclick=()=>expandNotes(!notes.classList.contains('is-expanded'));
+$('#recipe-dialog').addEventListener('close',()=>{notes.classList.remove('is-expanded');expand.setAttribute('aria-expanded','false')});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&notes.classList.contains('is-expanded')){e.preventDefault();e.stopImmediatePropagation();expandNotes(false)}},true);

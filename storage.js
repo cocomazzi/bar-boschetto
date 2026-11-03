@@ -1,3 +1,4 @@
+import {migrateRecipeIds} from './recipe-ids.js';
 import {preserveNutritionSettings} from './recipe-nutrition-model.js';
 import {initializeAccount,remoteApi,openLogin,logout} from './supabase-backend.js';
 const KEYS=['boschetto-v1','boschetto-calendar-v1','boschetto-shopping-v1','boschetto-nutrition-v1'];
@@ -33,7 +34,7 @@ export async function initialize(){
  $('#import-confirm').onclick=async()=>{const button=$('#import-confirm');button.disabled=true;try{await flush();if(dirty||blocked||sending)throw Error('Attendi il completamento dei salvataggi.');const incoming=importValues;if(!incoming)throw Error('Seleziona i dati da importare.');const result=await api('state',{method:'PUT',body:JSON.stringify({revision,values:incoming,import:true})});revision=result.revision;values=incoming;location.reload()}catch(error){$('#import-error').textContent=error.status===409?'Lo spazio condiviso è cambiato: importazione annullata. Scarica il backup e ricarica.':error.message;button.disabled=false}};
  const account=await initializeAccount();cloud=!!account;$('#account-logout').onclick=async()=>{await flush();if(dirty||sending){status('Prima di uscire completa l’invio oppure scarica il backup e ricarica.');return}try{await logout()}catch{status('Uscita non riuscita. Riprova.')}};
  if(!cloud){status('Visitatore · accedi per modificare e sincronizzare i dati');$('#sync-import').hidden=true;$('#sync-upload').hidden=true;return}
- const response=await api('bootstrap');values=response.values;catalog=response.catalog;revision=response.revision;user=response.user;status('Connesso · dati condivisi su questo account');$('#sync-import').hidden=!hasData(localValues());
+ const response=await api('bootstrap');values=response.values;catalog=response.catalog;revision=response.revision;user=response.user;const migrated=migrateRecipeIds(values,catalog);if(migrated!==values){backup();values=migrated;dirty=true;await flush()}status('Connesso · dati condivisi su questo account');$('#sync-import').hidden=!hasData(localValues());
  let drafts=[];try{drafts=JSON.parse(localStorage.getItem('boschetto-cloud-drafts')||'[]')}catch{}if(drafts.some(d=>d.user===user&&JSON.stringify(d.values)!==snapshot()))status('Connesso. Sono presenti copie locali di modifiche: puoi scaricarle con Backup.');
  pollTimer=setInterval(poll,15000);document.addEventListener('visibilitychange',()=>{if(!document.hidden)poll()});window.addEventListener('online',()=>{if(dirty&&!blocked){$('#sync-retry').hidden=true;flush()}else poll()});window.addEventListener('beforeunload',e=>{if(dirty){e.preventDefault();e.returnValue=''}});
 }

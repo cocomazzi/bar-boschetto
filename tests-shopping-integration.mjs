@@ -1,3 +1,4 @@
+import * as recipeIds from './recipe-ids.js';
 import test from 'node:test';import assert from 'node:assert/strict';import fs from 'node:fs/promises';import vm from 'node:vm';import {webcrypto} from 'node:crypto';
 import * as shoppingModel from './shopping-model.js';
 import {preserveNutritionSettings} from './recipe-nutrition-model.js';
@@ -5,7 +6,7 @@ const db=JSON.parse(await fs.readFile(new URL('./data.json',import.meta.url)));
 const src=(await fs.readFile(new URL('./app.js',import.meta.url),'utf8')).replace(/^import .*;\r?\n/gm,'').replaceAll('export function','function');
 async function run(values,scenario){
  const nodes=new Map(),listeners=new Map();function el(s){if(!nodes.has(s))nodes.set(s,{value:'',innerHTML:'',textContent:'',dataset:{},children:[],checked:false,disabled:false,hidden:false,open:false,addEventListener(type,fn){listeners.set(s+':'+type,fn)},querySelectorAll(){return[]},getBoundingClientRect(){return {height:0}},classList:{toggle(){},add(){},remove(){}},setAttribute(){},focus(){},showModal(){this.open=true},close(){this.open=false},checkValidity(){return true},reportValidity(){return true},setCustomValidity(){}});return nodes.get(s)}
- const c={...shoppingModel,assert,values,console,Intl,JSON,Object,Map,Set,crypto:webcrypto,window:{},navigator:{clipboard:{}},document:{body:{dataset:{}},querySelector:el,createElement:()=>el('new'),documentElement:{style:{setProperty(){}}},addEventListener(){},activeElement:{tagName:'BODY'}},setTimeout:()=>0,clearTimeout(){},appStorage:{getItem:k=>values[k]??null,setItem:(k,v)=>{if(c.failShopping&&k==='boschetto-shopping-v1')throw Error('Simulated save failure');values[k]=k==='boschetto-v1'?JSON.stringify(preserveNutritionSettings(JSON.parse(values[k]||'{}'),JSON.parse(v))):v;},catalog:async()=>db}};
+ const c={...recipeIds,...shoppingModel,assert,values,console,Intl,JSON,Object,Map,Set,crypto:webcrypto,window:{},navigator:{clipboard:{}},document:{body:{dataset:{}},querySelector:el,createElement:()=>el('new'),documentElement:{style:{setProperty(){}}},addEventListener(){},activeElement:{tagName:'BODY'}},setTimeout:()=>0,clearTimeout(){},appStorage:{getItem:k=>values[k]??null,setItem:(k,v)=>{if(c.failShopping&&k==='boschetto-shopping-v1')throw Error('Simulated save failure');values[k]=k==='boschetto-v1'?JSON.stringify(preserveNutritionSettings(JSON.parse(values[k]||'{}'),JSON.parse(v))):v;},catalog:async()=>db}};
  await vm.runInNewContext(`(async()=>{${src}\n${scenario}\n})()`,c);return c;
 }
 test('real calendar occurrences add/subtract only their demand; manual product and purchase/store survive reload',async()=>{

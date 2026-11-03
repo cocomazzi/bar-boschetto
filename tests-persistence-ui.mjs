@@ -25,7 +25,7 @@ test('shopping keeps full ingredient quantities; displayed recipe resolver never
  const src=await fs.readFile(new URL('./app.js',import.meta.url),'utf8');
  const d=dom(),values={'boschetto-v1':JSON.stringify({nutritionSettings:{defaultFirstPercent:75}})};
  const c={...shoppingModel,...d,console,Intl,JSON,Object,Map,Set,window:{},navigator:{clipboard:{}},appStorage:{getItem:k=>values[k]??null,setItem:(k,v)=>{const previous=JSON.parse(values[k]||'{}');values[k]=k==='boschetto-v1'?JSON.stringify(model.preserveNutritionSettings(previous,JSON.parse(v))):v},catalog:async()=>db},setTimeout:()=>0,clearTimeout(){}};
- const code=src.replace(/^import .*;\r?\n/gm,'').replace('export function getRecipeForNutrition','function getRecipeForNutrition');
+ const code=src.replace(/^import .*;\r?\n/gm,'').replaceAll('export function','function');
  await vm.runInNewContext(`(async()=>{${code}\nconst r=recipes[0];individual.add(lineKey(r,0));render();const before=window.shoppingText;const view=getRecipeForNutrition(r.recipe_id);globalThis.shoppingBefore=before;globalThis.view=view;globalThis.unchanged=before===window.shoppingText;amounts[lineKey(r,0)]='250';units[lineKey(r,0)]='g';globalThis.effective=getRecipeForNutrition(r.recipe_id).ingredients[0].quantity;persist();})()`,c);
  assert.equal(c.unchanged,true);assert.match(c.shoppingBefore,/pasta: 160 g/);assert.equal(c.effective,'250');assert.equal(JSON.parse(values['boschetto-v1']).nutritionSettings.defaultFirstPercent,75);
 });

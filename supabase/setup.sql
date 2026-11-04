@@ -88,8 +88,8 @@ begin
  perform public.bb_validate_state(p_values);
  insert into public.bb_account_state(user_id) values(uid) on conflict(user_id) do nothing;
  select * into previous from public.bb_account_state where user_id=uid for update;
- if previous.revision<>p_revision then raise exception using errcode='40001',message='STATE_CONFLICT'; end if;
- if p_import and public.bb_has_data(previous.state_values) then raise exception using errcode='40001',message='IMPORT_REQUIRES_EMPTY_STATE'; end if;
+ if previous.revision<>p_revision then raise exception using errcode='PT409',message='STATE_CONFLICT'; end if;
+ if p_import and public.bb_has_data(previous.state_values) then raise exception using errcode='PT409',message='IMPORT_REQUIRES_EMPTY_STATE'; end if;
  update public.bb_account_state set state_values=p_values,revision=revision+1,updated_at=now() where user_id=uid returning revision into next_revision;
  return jsonb_build_object('revision',next_revision);
 end $$;

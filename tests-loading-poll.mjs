@@ -3,6 +3,14 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs/promises';
 import vm from 'node:vm';
 const read=n=>fs.readFile(new URL(n,import.meta.url),'utf8');
+test('HTTP conflict code and legacy serialization code both stop saves as conflicts',async()=>{
+ const src=(await read('supabase-backend.js')).replace(/^import .*;\r?\n/gm,'').replaceAll('export ','');
+ for(const code of ['PT409','40001']){
+  const c={document:{querySelector(){}},mockClient:{rpc:async()=>({error:{code,message:'STATE_CONFLICT'}})}};
+  await vm.runInNewContext(`${src}\nclient=mockClient;globalThis.api=remoteApi;`,c);
+  await assert.rejects(()=>c.api('state',{method:'PUT',body:JSON.stringify({revision:0,values:{}})}),e=>e.status===409&&e.code===code);
+ }
+});
 test('revision request reads only the indexed account revision and never calls the state RPC',async()=>{
  const calls=[],query={select(v){calls.push(['select',v]);return this},eq(k,v){calls.push(['eq',k,v]);return this},async single(){return {data:{revision:12}}}};
  const c={document:{querySelector(){}},mockClient:{from(t){calls.push(['from',t]);return query},rpc(){throw Error('Full state RPC must not be called')}},calls};

@@ -68,3 +68,46 @@ button.family{background:var(--card);color:var(--green)}.catalog-row{width:100%;
 
 .settings-menu-image{width:46px;height:46px;object-fit:contain;mix-blend-mode:multiply;filter:invert(1) hue-rotate(180deg)}#open-settings{padding:0;background:transparent;border:0}#open-settings:hover{background:#EFE3D4}
 .notes-editor{position:relative;display:flex;flex-direction:column;gap:12px}.notes-editor #expand-notes{align-self:flex-end;background:var(--card);border:1px solid var(--border);border-radius:50%;width:36px;height:36px;display:grid;place-items:center;cursor:pointer}.notes-editor.is-expanded{position:fixed;inset:16px;z-index:100;background:var(--card);padding:24px;box-shadow:0 0 0 100vmax #24422f70;border:1px solid var(--border);border-radius:16px;margin:0!important}.notes-editor.is-expanded textarea{flex:1;min-height:0;resize:none;width:100%}#new-notes{resize:vertical;min-height:110px}
+.mobile-only,.mobile-nav{display:none}
+@media(max-width:760px){
+ html{scroll-padding-bottom:90px}
+ body{padding-bottom:calc(78px + env(safe-area-inset-bottom));--nav-height:0px!important;--calendar-height:0px!important}
+ header{position:sticky;top:0;z-index:25;min-height:64px;padding:8px 16px;flex-wrap:nowrap;gap:8px;background:var(--bg)}
+ header .brand{font-size:23px;white-space:nowrap;display:flex;align-items:center;gap:5px;flex:1;min-width:0}
+ header .boschetto-mark{display:none}
+ header .account-controls{gap:4px}header #account-email{display:none}
+ header #open-settings{width:44px;height:44px;padding:5px}header .family{padding:8px}
+ .main-nav{display:none}
+ .sync-bar{padding:8px 16px;font-size:11px}
+ main{padding:18px 16px 0}.intro{margin-bottom:20px}.intro .eyebrow{display:none}.intro h1{font-size:30px;margin:0 0 8px}.intro p{font-size:14px;margin:0}
+ .mobile-menu-page .intro{display:none}
+ .mobile-nav{display:grid;grid-template-columns:repeat(3,1fr);position:fixed;z-index:40;inset:auto 0 0;background:var(--card);border-top:1px solid var(--border);padding:7px 12px calc(7px + env(safe-area-inset-bottom));gap:6px;box-shadow:0 -3px 18px #24422f0c}
+ .mobile-nav>a,.mobile-nav>button{min-height:54px;display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:4px;border:0;border-radius:10px;text-decoration:none;background:transparent;color:var(--muted);font:inherit;font-size:13px}
+ .mobile-nav span{flex-basis:100%;text-align:center;font-size:22px;line-height:22px}.mobile-nav small:empty{display:none}
+ .mobile-nav [aria-current],.mobile-nav [aria-expanded=true]{background:var(--green);color:var(--card)}
+ .mobile-nav :focus-visible,.plan-handle:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+ .mobile-only{display:inline-flex}
+ body #calendario.week-panel{position:static!important;margin:0 0 20px;padding:14px;overflow:visible;scroll-margin-top:76px}
+ body #calendario #week-days{display:flex;flex-direction:column;overflow:visible;gap:12px;max-height:none}
+ #calendario>.small:not(#week-range):not(#calendar-status){display:none}
+ #calendario .week-day{min-height:0;padding:12px}.day-title{font-size:14px}
+ #calendario .planned-list{max-height:none;overflow:visible}
+ #calendario .planned-recipe{display:grid;grid-template-columns:44px minmax(0,1fr) auto;gap:6px;align-items:center;padding:10px 0}
+ #calendario .planned-recipe strong{grid-column:2 / 4;font-size:15px}
+ .planned-recipe .plan-handle{grid-column:1;grid-row:1 / 3;min-height:48px;width:44px;touch-action:none;user-select:none;cursor:grab;border:1px solid var(--border);border-radius:8px;background:var(--card);color:var(--green);font-size:28px;justify-content:center;align-items:center}
+ .planned-recipe [data-move-plan]{grid-column:2;justify-self:start}.planned-recipe [data-remove-day]{grid-column:3}
+ #calendario .empty-day{min-height:44px;flex-direction:row;gap:8px;margin-top:5px}.empty-day small{font-size:13px}
+ .menu-actions{display:flex;flex-direction:column;gap:10px;margin-top:18px}.menu-actions p{font-size:13px;line-height:1.5;margin:0}.menu-actions .primary-button{min-height:44px}
+ #ricettario{scroll-margin-top:80px}.cookbook>.section-title h2{font-size:22px}.filters{padding:12px}.filter-row{margin:5px 0}.search kbd{display:none}
+ .recipe-head{flex-wrap:wrap;gap:10px}.recipe-info{min-width:0;flex:1 1 calc(100% - 45px)}.recipe-name{overflow-wrap:anywhere}
+ .add-to-menu{min-height:44px;padding:8px 14px;border:1px solid var(--green);border-radius:8px;background:var(--green);color:var(--card);align-items:center;justify-content:center}
+ .recipe-head .expand{min-height:44px;width:auto;min-width:44px}.recipe-head>.edit-recipe{margin-left:28px}.recipe-meta{flex-wrap:wrap}
+ .ingredient{flex-wrap:wrap}.ingredient>label:not(.quantity-edit){min-width:120px}.ingredient .quantity-edit{margin-left:auto}
+ #menu-day-picker{width:100%;max-width:100%;max-height:85dvh;margin:auto 0 0;inset:auto 0 0;border-radius:20px 20px 0 0;padding:20px 16px calc(20px + env(safe-area-inset-bottom));overflow:auto}
+ #menu-day-picker h2{font-size:22px}#menu-day-picker .delete-item{width:44px;height:44px}
+ #menu-day-options{display:grid;gap:8px}#menu-day-options button{min-height:52px;border:1px solid var(--border);border-radius:10px;text-align:left;background:var(--bg);color:var(--green);padding:12px;font:inherit;font-size:14px}#menu-day-options button:disabled{opacity:.5}
+ .menu-picker-week{display:flex;justify-content:space-between;gap:10px;margin:15px 0}.menu-picker-week button{min-height:44px;background:var(--card);border:1px solid var(--border);border-radius:8px;color:var(--green);padding:8px}
+ .toast{max-width:calc(100vw - 32px)}
+}
+
+@media(max-width:760px){.mobile-notice{position:fixed;z-index:45;bottom:calc(84px + env(safe-area-inset-bottom));left:16px;right:16px;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 16px;background:var(--green);color:var(--card);border-radius:12px;box-shadow:0 3px 20px #24422f30;font-size:14px}.mobile-notice button{border:1px solid currentColor;border-radius:8px;padding:8px;color:inherit;background:transparent;min-height:44px}}

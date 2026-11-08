@@ -22,7 +22,12 @@ I dati locali precedenti vengono conservati e possono essere importati esplicita
 
 ## File e pubblicazione
 
-Il codice è nella radice di `main`; non esiste una copia in `dist/`. Gli asset con hash prevengono problemi di cache.
+La pubblicazione continua a usare la radice della repository, senza cambiare le impostazioni di GitHub Pages o Cloudflare Pages. Non serve una copia in `dist/`.
+
+- I file JavaScript senza hash e `style.css` sono i sorgenti da modificare.
+- `templates/index.html` è il sorgente HTML da modificare.
+- `index.html` e `assets/` sono generati: non modificarli a mano.
+- `assets/` contiene solo il grafo corrente di JavaScript e CSS con hash del contenuto. Ogni build aggiorna anche gli import tra moduli ed elimina le copie obsolete, comprese quelle storiche nella radice. Gli altri file vengono conservati.
 
 - `app.js`, `nutrition.js`, `style.css`: interfaccia e funzionalità.
 - `storage.js`, `supabase-backend.js`, `bootstrap.js`: sincronizzazione e login.
@@ -31,7 +36,17 @@ Il codice è nella radice di `main`; non esiste una copia in `dist/`. Gli asset 
 - `supabase/setup.sql`: schema, RLS, validazione e funzioni di salvataggio.
 - `vendor/`: client ufficiale Supabase 2.118.0 con licenza MIT.
 
-Dopo una modifica eseguire `python scripts/build-assets.py`. Pubblicare la radice della repository. Il client Supabase è incluso localmente; non occorre un build npm per il sito.
+Dopo una modifica eseguire:
+
+```sh
+python scripts/build-assets.py
+python scripts/test-build-assets.py
+node --test tests-*.mjs
+```
+
+Committare insieme sorgenti, `index.html` e `assets/`, incluse le eliminazioni degli asset obsoleti. I file generati restano versionati perché la pubblicazione attuale serve direttamente la repository e non esegue una build. Due build senza modifiche producono gli stessi file, senza nuove copie. Il client Supabase è incluso localmente; non occorre una build npm per il sito.
+
+Gli hash mantengono la protezione dalla cache introdotta il 18 ottobre 2026. Un vecchio HTML già nella cache può ancora puntare ad asset rimossi: dopo la prima pubblicazione di questa pulizia, ricaricare la pagina se necessario (Ctrl+F5 su desktop). Le impostazioni e i dati Supabase/localStorage non vengono modificati dalla build.
 
 ## Test SQL
 

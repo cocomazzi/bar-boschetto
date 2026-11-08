@@ -1,5 +1,5 @@
 import {scrollSpeed} from './drag-scroll.61ef08112411.js';
-import {showPage,movePlanned,moveShop,reorderShop,shopEditor,saveShopEditor} from './app.b266aba08f62.js';
+import {showPage,movePlanned,moveShop,reorderShop,shopEditor,saveShopEditor} from './app.8ac258257294.js';
 const $=s=>document.querySelector(s);
 const settings=document.createElement('dialog');settings.id='settings-dialog';settings.innerHTML='<h2>Impostazioni</h2><h3>Backup e trasferimento</h3><div class="sync-actions"></div><h3>Supermercati</h3><div id="settings-stores"></div><button type="button" id="close-settings">Chiudi</button>';document.body.append(settings);
 for(const id of ['sync-backup','sync-upload','sync-import','sync-file'])settings.querySelector('.sync-actions').append($('#'+id));
@@ -8,7 +8,6 @@ $('#open-settings').onclick=()=>settings.showModal();$('#close-settings').onclic
 const manual=$('.manual-add');manual.querySelector('summary').innerHTML='<span id="manual-plus" role="button" aria-label="Aggiungi alla spesa">+</span>';manual.addEventListener('toggle',()=>{if(manual.open)$('#manual-name').focus()});
 const options=document.createElement('details');options.className='manual-options';options.innerHTML='<summary aria-label="Opzioni aggiunta manuale">⚙</summary>';const form=$('#manual-form');for(const id of ['manual-quantity','manual-unit','manual-store']){const label=$('#'+id).closest('label');options.append(label)}form.insertBefore(options,form.querySelector('button[type=submit]'));
 manual.querySelector('summary').innerHTML='<span class="manual-add-symbol">+</span><span>Aggiungi un prodotto</span>';
-document.querySelector('header .account-controls').prepend($('#open-settings'));$('#open-settings').innerHTML='<img class="settings-menu-image" src="menu-neon.png" alt="">';$('#open-settings').setAttribute('aria-label','Impostazioni');
 for(const dialog of document.querySelectorAll('dialog')){let backdrop=false;dialog.addEventListener('pointerdown',e=>{const r=dialog.getBoundingClientRect();backdrop=e.target===dialog&&(e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom)});dialog.addEventListener('click',e=>{if(backdrop&&e.target===dialog)dialog.close();backdrop=false})}
 function navigate(){const hash=location.hash.slice(1);const page=hash==='ricettario'?'recipes':hash==='calendario'?'calendar':'categories';showPage(page);$('#recipes').removeAttribute('aria-labelledby');$('#recipes').setAttribute('aria-label',page==='recipes'?'Ricettario':'Categorie');for(const [id,value] of [['nav-categories','categories'],['nav-recipes','recipes'],['nav-calendar','calendar']]){$('#'+id).toggleAttribute('aria-current',page===value);}}
 window.addEventListener('hashchange',navigate);navigate();

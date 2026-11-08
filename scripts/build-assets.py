@@ -1,25 +1,62 @@
+"""Build the root-hosted site with only the current fingerprinted asset graph."""
 from pathlib import Path
-import hashlib,re
-root=Path(__file__).resolve().parents[1]
-def asset(name,text=None):
- data=text.encode('utf-8') if text is not None else (root/name).read_bytes()
- stem,ext=name.rsplit('.',1);target=stem+'.'+hashlib.sha256(data).hexdigest()[:12]+'.'+ext
- (root/target).write_bytes(data);return target
-dragScroll=asset('drag-scroll.js')
-recipeIds=asset('recipe-ids.js')
-shoppingModel=asset('shopping-model.js')
-model=asset('recipe-nutrition-model.js')
-config=asset('supabase-config.js')
-backend=asset('supabase-backend.js',(root/'supabase-backend.js').read_text(encoding='utf-8-sig').replace('./supabase-config.js','./'+config))
-storage=asset('storage.js',(root/'storage.js').read_text(encoding='utf-8-sig').replace('./supabase-backend.js','./'+backend).replace('./recipe-nutrition-model.js','./'+model).replace('./recipe-ids.js','./'+recipeIds))
-app=asset('app.js',(root/'app.js').read_text(encoding='utf-8-sig').replace('./storage.js','./'+storage).replace('./shopping-model.js','./'+shoppingModel).replace('./recipe-ids.js','./'+recipeIds))
-nutrition=asset('nutrition.js',(root/'nutrition.js').read_text(encoding='utf-8-sig').replace('./storage.js','./'+storage))
-recipeNutrition=asset('recipe-nutrition.js',(root/'recipe-nutrition.js').read_text(encoding='utf-8').replace('./storage.js','./'+storage).replace('./app.js','./'+app).replace('./recipe-nutrition-model.js','./'+model))
-interface=asset('interface.js',(root/'interface.js').read_text(encoding='utf-8').replace('./app.js','./'+app).replace('./drag-scroll.js','./'+dragScroll))
-bootstrap=asset('bootstrap.js',(root/'bootstrap.js').read_text(encoding='utf-8').replace('./storage.js','./'+storage).replace('./app.js','./'+app).replace('./nutrition.js','./'+nutrition).replace('./recipe-nutrition.js','./'+recipeNutrition).replace('./interface.js','./'+interface))
-css=asset('style.css');html=(root/'index.html').read_text(encoding='utf-8-sig')
-html=re.sub(r'href="style(?:\.[a-f0-9]{12})?\.css"','href="'+css+'"',html)
-html=re.sub(r'<script type="module" src="(?:app|nutrition|bootstrap)(?:\.[a-f0-9]{12})?\.js"></script>','',html)
-html=re.sub(r'<script type="module" src="interface(?:\.[a-f0-9]{12})?\.js"></script>','',html)
-html=html.replace('</body>','<script type="module" src="'+bootstrap+'"></script></body>');(root/'index.html').write_text(html,encoding='utf-8')
-print('Assets:',storage,app,nutrition,bootstrap,css)
+import hashlib
+import re
+
+ROOT = Path(__file__).resolve().parents[1]
+IMPORT = re.compile(
+    r"""(?P<prefix>\bfrom\s*|\bimport\s*\(\s*|\bimport\s*)(?P<quote>['"])\./(?P<name>[\w-]+\.js)(?P=quote)"""
+)
+GENERATED = re.compile(r'[\w-]+\.[a-f0-9]{12}\.(?:js|css)')
+
+
+def build(root=ROOT):
+    names, contents, visiting = {}, {}, set()
+
+    def asset(name):
+        if name in names:
+            return names[name]
+        if name in visiting:
+            raise ValueError(f'Circular module dependency: {name}')
+        visiting.add(name)
+        data = (root / name).read_text(encoding='utf-8-sig').encode('utf-8')
+        if name.endswith('.js'):
+            def dependency(match):
+                quote = match['quote']
+                return match['prefix'] + quote + './' + asset(match['name']) + quote
+
+            data = IMPORT.sub(dependency, data.decode('utf-8-sig')).encode('utf-8')
+        source = Path(name)
+        target = f'{source.stem}.{hashlib.sha256(data).hexdigest()[:12]}{source.suffix}'
+        names[name], contents[target] = target, data
+        visiting.remove(name)
+        return target
+
+    # Validate the entire graph before changing published files.
+    bootstrap, css = asset('bootstrap.js'), asset('style.css')
+    html = (root / 'templates' / 'index.html').read_text(encoding='utf-8-sig')
+    for source, target in [('bootstrap.js', bootstrap), ('style.css', css)]:
+        if html.count(f'"{source}"') != 1:
+            raise ValueError(f'Template must reference {source} exactly once')
+        html = html.replace(f'"{source}"', f'"assets/{target}"')
+
+    output = root / 'assets'
+    output.mkdir(exist_ok=True)
+    for target, data in contents.items():
+        (output / target).write_bytes(data)
+    temporary = root / 'index.html.tmp'
+    temporary.write_text(html, encoding='utf-8', newline='\n')
+    temporary.replace(root / 'index.html')
+
+    # Never remove sources or unrelated assets.
+    for directory in (root, output):
+        for path in directory.iterdir():
+            if path.is_file() and GENERATED.fullmatch(path.name):
+                if directory == root or path.name not in contents:
+                    path.unlink()
+    return names
+
+
+if __name__ == '__main__':
+    names = build()
+    print(f'Built index.html and {len(names)} current assets in assets/')

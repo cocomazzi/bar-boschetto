@@ -1,0 +1,5 @@
+# Fingerprints must describe the exact bytes served, including on Windows.
+assets/*.js text eol=lf
+assets/*.css text eol=lf
+index.html text eol=lf
+templates/index.html text eol=lf

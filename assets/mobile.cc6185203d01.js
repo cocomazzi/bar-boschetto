@@ -1,4 +1,4 @@
-import {assignDay,movePlanned,mobileMenuDates} from './app.cbed1d50cc0d.js';
+import {assignDay,movePlanned,mobileMenuDates} from './app.19074303c23a.js';
 import {scrollSpeed} from './drag-scroll.61ef08112411.js';
 
 const $=s=>document.querySelector(s);
@@ -7,10 +7,6 @@ const nav=document.createElement('nav');
 nav.className='mobile-nav';nav.setAttribute('aria-label','Navigazione mobile');
 nav.innerHTML='<a href="#categorie" data-mobile-page="recipes"><span aria-hidden="true">⌕</span>Ricette</a><a href="#calendario" data-mobile-page="calendar"><span aria-hidden="true">▦</span>Menù <small id="mobile-menu-count"></small></a><button type="button" id="mobile-shopping"><span aria-hidden="true">☷</span>Spesa</button>';
 document.body.append(nav);
-
-const catalog=document.createElement('button');catalog.type='button';catalog.textContent='Catalogo ingredienti';
-catalog.onclick=()=>{$('#settings-dialog').close();$('#open-ingredients').click()};
-catalog.className='mobile-only';$('#settings-dialog').insertBefore(catalog,$('#close-settings'));
 
 const menuActions=document.createElement('div');menuActions.className='mobile-only menu-actions';
 menuActions.innerHTML='<p>Trascina dalla maniglia ⠿ per cambiare giorno, oppure usa “Sposta in…”.</p><button type="button" class="primary-button" id="menu-shopping">Vai alla lista della spesa</button><p class="small">Gli ingredienti del menù sono già inclusi nella spesa.</p>';

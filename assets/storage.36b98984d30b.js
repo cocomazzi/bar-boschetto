@@ -1,5 +1,5 @@
 import {migrateRecipeIds} from './recipe-ids.d6ec9d5f36a4.js';
-import {preserveNutritionSettings} from './recipe-nutrition-model.3a4b0a0f1cec.js';
+import {preserveNutritionSettings} from './recipe-nutrition-model.d7a14e0372ca.js';
 import {initializeAccount,remoteApi,openLogin,logout} from './supabase-backend.9343b298523f.js';
 const KEYS=['boschetto-v1','boschetto-calendar-v1','boschetto-shopping-v1','boschetto-nutrition-v1'];
 let cloud=false,booting=true;

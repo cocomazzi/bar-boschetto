@@ -1,6 +1,6 @@
 import {nextRecipeId} from './recipe-ids.d6ec9d5f36a4.js';
-import {normalizeShopping,reconcileShopping,shoppingRows,setPurchased,moveProduct,configureStores,reorderProducts,storeFor} from './shopping-model.38459dce36a0.js';
-import {appStorage} from './storage.013c042710d4.js';
+import {normalizeShopping,reconcileShopping,shoppingRows,setPurchased,moveProduct,configureStores,reorderProducts,storeFor} from './shopping-model.72a0b36cb809.js';
+import {appStorage} from './storage.36b98984d30b.js';
 const $=s=>document.querySelector(s);
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const normalize=s=>String(s??'').normalize('NFD').replace(/\p{Diacritic}/gu,'').toLowerCase();
@@ -18,7 +18,7 @@ let shoppingState=normalizeShopping(rawShopping,[...checked]);
 const calendarExcluded=new Set(shoppingState.excluded);
 for(const key of [...calendarExcluded]){const parts=key.split('|');if(parts.length===3){const [day,...rest]=parts;for(const entry of weekPlan[day]||[])calendarExcluded.add(day+'|'+entry.id+'|'+rest.join('|'));calendarExcluded.delete(key)}}
 try{appStorage.setItem('boschetto-calendar-v1',JSON.stringify(weekPlan))}catch{}
-function commitShopping(next){const value={...next,excluded:[...calendarExcluded]};try{appStorage.setItem('boschetto-shopping-v1',JSON.stringify(value));shoppingState=value;return true}catch(error){$('#shopping-message').textContent=error.message||'Salvataggio della spesa non riuscito.';return false}}
+function commitShopping(next,errorTarget='#shopping-message'){const value={...next,excluded:[...calendarExcluded]};try{appStorage.setItem('boschetto-shopping-v1',JSON.stringify(value));shoppingState=value;return true}catch(error){$(errorTarget).textContent=error.message||'Salvataggio della spesa non riuscito.';return false}}
 function saveShoppingState(){return commitShopping(shoppingState)}
 const itemKey=i=>i.ingredient_id+'|'+String(i.unit||'').trim();
 const calendarLineKey=(day,entry,i)=>day+'|'+entry.id+'|'+itemKey(i);
@@ -30,7 +30,7 @@ const included=(r,i)=>individual.has(lineKey(r,i));
 const persist=()=>{try{appStorage.setItem('boschetto-v1',JSON.stringify({selected:[...selected],checked:[...checked],individual:[...individual],amounts,units,customRecipes,manualItems,editedRecipes,recipeTags}))}catch{}};
 const fmt=n=>new Intl.NumberFormat('it-IT',{maximumFractionDigits:2}).format(n);
 const ingredientUnit=(r,index)=>units[lineKey(r,index)]??r.ingredients[index].unit??'';
-function unitOptions(current){return [...new Set([current,'g','porzione','ml','pezzi'].filter(u=>u!==null&&u!==undefined))].map(u=>`<option value="${esc(u)}" ${u===current?'selected':''}>${esc(u||'—')}</option>`).join('')}
+function unitOptions(current){return [...new Set([current,'g','porzione','ml','cucchiaio','pezzi'].filter(u=>u!==null&&u!==undefined))].map(u=>`<option value="${esc(u)}" ${u===current?'selected':''}>${esc(u||'—')}</option>`).join('')}
 function quantity(q,u){return `${q??'q.b.'}${u?' '+u:''}`}
 let recipeView='categories',pageView='categories';
 const categoryOpen=new Map();
@@ -43,13 +43,18 @@ function recipeMarkup(r){return `<article draggable="true" data-drag-recipe="${r
 function shoppingSources(){return recipes.flatMap(r=>r.ingredients.flatMap((original,index)=>included(r,index)?[{...original,kind:'recipe',source_id:lineKey(r,index),quantity:amounts[lineKey(r,index)]??original.quantity,unit:ingredientUnit(r,index)}]:[])).concat(manualItems.map((item,index)=>({...item,kind:'manual',source_id:'manual:'+index})),plannedIngredients())}
 function shoppingQuantity(row){return row.quantities.length?row.quantities.map(p=>[p.numeric?quantity(fmt(p.sum),p.unit):'',...p.notes.map(note=>quantity(note,p.unit))].filter(Boolean).join(' + ')).join(' + '):'Quantità da indicare'}
 function shoppingStoreOptions(current){return shoppingState.stores.map(store=>`<option value="${store.id}" ${current===store.id?'selected':''}>${esc(store.name)}</option>`).join('')}
+export function fillStoreSettings(){
+ $('#store-name-1').value=shoppingState.stores[0].name;
+ $('#store-name-2').value=shoppingState.stores[1].name;
+ $('#shopping-default-store').innerHTML=shoppingStoreOptions(shoppingState.defaultStoreId);
+}
 function renderShopping(){
  const sources=shoppingSources(),next=reconcileShopping(shoppingState,sources);
  if(JSON.stringify(next)!==JSON.stringify(shoppingState))commitShopping(next);
  const rows=shoppingRows(shoppingState,sources),active=rows.filter(row=>row.storeId===shoppingState.activeStoreId),pending=active.filter(row=>!row.checked),purchased=active.filter(row=>row.checked),store=shoppingState.stores.find(store=>store.id===shoppingState.activeStoreId);
  $('#shopping-store-tabs').innerHTML=shoppingState.stores.map(store=>`<button id="shopping-tab-${store.id}" type="button" role="tab" aria-selected="${store.id===shoppingState.activeStoreId}" tabindex="${store.id===shoppingState.activeStoreId?'0':'-1'}" aria-controls="shopping-panel" data-store-tab="${store.id}">${esc(store.name)} <span>${rows.filter(row=>row.storeId===store.id&&!row.checked).length}</span></button>`).join('');
  $('#shopping-panel').setAttribute('aria-labelledby','shopping-tab-'+shoppingState.activeStoreId);
- if(!$('#shopping-store-settings').open){$('#store-name-1').value=shoppingState.stores[0].name;$('#store-name-2').value=shoppingState.stores[1].name;$('#shopping-default-store').innerHTML=shoppingStoreOptions(shoppingState.defaultStoreId)}
+ if(!$('#shopping-store-settings').open)fillStoreSettings();
  $('#manual-store').innerHTML=shoppingStoreOptions($('#manual-store').value||shoppingState.activeStoreId);
  $('#selected-count').textContent=`${pending.length} da acquistare · ${purchased.length} acquistati`;
  $('#clear').disabled=!pending.length;
@@ -67,7 +72,11 @@ $('#shopping-list').onclick=e=>{const move=e.target.closest('[data-move-shop]');
 $('#clear').onclick=()=>{let next=shoppingState;for(const row of shoppingRows(shoppingState,shoppingSources()))if(row.storeId===shoppingState.activeStoreId&&!row.checked)next=setPurchased(next,row.key,true);if(commitShopping(next))renderShopping()};
 $('#shopping-store-tabs').onclick=e=>{const tab=e.target.closest('[data-store-tab]');if(!tab)return;shoppingState={...shoppingState,activeStoreId:tab.dataset.storeTab};$('#manual-store').value=shoppingState.activeStoreId;renderShopping();$('#shopping-tab-'+shoppingState.activeStoreId).focus()};
 $('#shopping-store-tabs').onkeydown=e=>{if(!['ArrowLeft','ArrowRight','Home','End'].includes(e.key))return;e.preventDefault();const current=shoppingState.stores.findIndex(s=>s.id===shoppingState.activeStoreId),index=e.key==='Home'?0:e.key==='End'?1:1-current;shoppingState={...shoppingState,activeStoreId:shoppingState.stores[index].id};$('#manual-store').value=shoppingState.activeStoreId;renderShopping();$('#shopping-tab-'+shoppingState.activeStoreId).focus()};
-$('#shopping-store-form').onsubmit=e=>{e.preventDefault();$('#shopping-store-error').textContent='';try{const next=configureStores(shoppingState,[$('#store-name-1').value,$('#store-name-2').value],$('#shopping-default-store').value);if(commitShopping(next)){$('#shopping-store-settings').open=false;renderShopping();$('#shopping-message').textContent='Supermercati e preferenze salvati.'}}catch(error){$('#shopping-store-error').textContent=error.message}};
+$('#shopping-store-form').onsubmit=e=>{e.preventDefault();$('#shopping-store-status').textContent='';$('#shopping-store-error').textContent='';try{const next=configureStores(shoppingState,[$('#store-name-1').value,$('#store-name-2').value],$('#shopping-default-store').value);if(commitShopping(next,'#shopping-store-error')){
+ fillStoreSettings();
+ renderShopping();
+ $('#shopping-store-status').textContent='Supermercati e preferenze salvati.';
+ }}catch(error){$('#shopping-store-error').textContent=error.message}};
 document.addEventListener('keydown',e=>{if(e.key==='/'&&!['INPUT','TEXTAREA','SELECT'].includes(document.activeElement.tagName)){e.preventDefault();$('#search').focus()}});
 try{db=await appStorage.catalog();shoppingState=normalizeShopping(shoppingState,[],db.catalogo_ingredienti);saveShoppingState();const catalog=new Map(db.catalogo_ingredienti.map(i=>[i.ingredient_id,i]));recipes=db.ricette.map(r=>{const ingredients=db.ricette_ingredienti.filter(i=>i.recipe_id===r.recipe_id).map(i=>({...i,name_nl:catalog.get(i.ingredient_id)?.name_nl||''}));return {...r,tags:split(r.tags),categories:[r.category,...split(r.additional_categories)],ingredients,search:normalize([r.name,r.category,r.tags,...ingredients.flatMap(i=>[i.ingredient_name,i.name_nl])].join(' '))}});recipes.push(...customRecipes.map(prepareRecipe));recipes=recipes.map(r=>prepareRecipe({...r,...editedRecipes[r.recipe_id],tags:recipeTags[r.recipe_id]??editedRecipes[r.recipe_id]?.tags??r.tags}));for(const id of selected)if(!recipes.some(r=>r.recipe_id===id))selected.delete(id);for(const r of recipes)if(selected.has(r.recipe_id))r.ingredients.forEach((_,i)=>individual.add(lineKey(r,i)));selected.clear();persist();refreshFilters();render()}catch(e){$('#recipes').innerHTML='<p role="alert">Il ricettario non è disponibile. Ricarica la pagina per riprovare.</p>';console.error(e)}
 

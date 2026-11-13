@@ -74,9 +74,9 @@ button.family{background:var(--card);color:var(--green)}.catalog-row{width:100%;
  body{padding-bottom:calc(78px + env(safe-area-inset-bottom));--nav-height:0px!important;--calendar-height:0px!important}
  header{position:sticky;top:0;z-index:25;min-height:64px;padding:8px 16px;flex-wrap:nowrap;gap:8px;background:var(--bg)}
  header .brand{font-size:23px;white-space:nowrap;display:flex;align-items:center;gap:5px;flex:1;min-width:0}
- header .boschetto-mark{display:none}
+ header .boschetto-mark{display:block;width:26px;height:26px;margin-left:2px;flex-shrink:0}
  header .account-controls{gap:4px}header #account-email{display:none}
- header #open-settings{width:44px;height:44px;padding:5px}header .family{padding:8px}
+ header #open-settings{width:44px;height:44px;padding:5px;place-items:center}header .settings-menu-image{width:30px;height:30px}header .family{padding:8px}
  .main-nav{display:none}
  .sync-bar{padding:8px 16px;font-size:11px}
  main{padding:18px 16px 0}.intro{margin-bottom:20px}.intro .eyebrow{display:none}.intro h1{font-size:30px;margin:0 0 8px}.intro p{font-size:14px;margin:0}
@@ -92,9 +92,9 @@ button.family{background:var(--card);color:var(--green)}.catalog-row{width:100%;
  #calendario>.small:not(#week-range):not(#calendar-status){display:none}
  #calendario .week-day{min-height:0;padding:12px}.day-title{font-size:14px}
  #calendario .planned-list{max-height:none;overflow:visible}
- #calendario .planned-recipe{display:grid;grid-template-columns:44px minmax(0,1fr) auto;gap:6px;align-items:center;padding:10px 0}
+ #calendario .planned-recipe{display:grid;grid-template-columns:36px minmax(0,1fr) auto;gap:6px;align-items:center;padding:10px 0}
  #calendario .planned-recipe strong{grid-column:2 / 4;font-size:15px}
- .planned-recipe .plan-handle{grid-column:1;grid-row:1 / 3;min-height:48px;width:44px;touch-action:none;user-select:none;cursor:grab;border:1px solid var(--border);border-radius:8px;background:var(--card);color:var(--green);font-size:28px;justify-content:center;align-items:center}
+ .planned-recipe .plan-handle{grid-column:1;grid-row:1 / 3;min-height:38px;width:36px;touch-action:none;user-select:none;cursor:grab;border:1px solid var(--border);border-radius:8px;background:var(--card);color:var(--green);font-size:21px;justify-content:center;align-items:center}
  .planned-recipe [data-move-plan]{grid-column:2;justify-self:start}.planned-recipe [data-remove-day]{grid-column:3}
  #calendario .empty-day{min-height:44px;flex-direction:row;gap:8px;margin-top:5px}.empty-day small{font-size:13px}
  .menu-actions{display:flex;flex-direction:column;gap:10px;margin-top:18px}.menu-actions p{font-size:13px;line-height:1.5;margin:0}.menu-actions .primary-button{min-height:44px}
@@ -111,3 +111,43 @@ button.family{background:var(--card);color:var(--green)}.catalog-row{width:100%;
 }
 
 @media(max-width:760px){.mobile-notice{position:fixed;z-index:45;bottom:calc(84px + env(safe-area-inset-bottom));left:16px;right:16px;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 16px;background:var(--green);color:var(--card);border-radius:12px;box-shadow:0 3px 20px #24422f30;font-size:14px}.mobile-notice button{border:1px solid currentColor;border-radius:8px;padding:8px;color:inherit;background:transparent;min-height:44px}}
+
+#settings-dialog .settings-list {
+ display:grid;
+ gap:10px;
+ margin:18px 0;
+}
+.settings-item {
+ display:flex;
+ justify-content:space-between;
+ align-items:center;
+ gap:12px;
+ width:100%;
+ min-height:66px;
+ padding:12px 14px;
+ border:1px solid var(--border);
+ border-radius:12px;
+ background:var(--bg);
+ color:var(--green);
+ text-align:left;
+}
+.settings-item:hover {border-color:var(--green)}
+.settings-item strong,.settings-item small {display:block}
+.settings-item small {margin-top:4px;color:var(--muted);line-height:1.4}
+.settings-chevron {font-size:24px}
+.settings-backup {border-top:1px solid var(--border);padding-top:12px}
+.settings-backup summary {color:var(--green);cursor:pointer;padding:6px 0}
+.settings-backup .sync-actions {margin-top:10px}
+.settings-backup .sync-actions button {
+ border:1px solid var(--border);
+ border-radius:8px;
+ padding:8px 12px;
+ background:var(--bg);
+ color:var(--green);
+}
+#settings-stores #shopping-store-settings > summary {display:none}
+#back-settings {min-height:44px}
+#shopping-store-status:empty {display:none}
+@media(max-width:760px){
+ .mobile-nav [data-mobile-page=calendar] span {font-size:18px}
+}

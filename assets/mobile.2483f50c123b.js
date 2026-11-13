@@ -20,14 +20,13 @@ const drawer=$('#shopping-drawer');
 drawer.addEventListener('close',()=>{updateNav();if(mobile.matches)$('#mobile-shopping').focus()});
 function updateNav(){
  const menu=document.body.dataset.page==='calendar',shopping=drawer.open;
- document.body.classList.toggle('mobile-menu-page',mobile.matches&&menu);
  for(const link of nav.querySelectorAll('a')){
   const active=!shopping&&(link.dataset.mobilePage==='calendar'?menu:!menu);
   if(active)link.setAttribute('aria-current','page');else link.removeAttribute('aria-current');
  }
  $('#mobile-shopping').setAttribute('aria-expanded',String(shopping));
  const count=mobileMenuDates().reduce((sum,day)=>sum+day.count,0);$('#mobile-menu-count').textContent=count||'';
- if(mobile.matches){$('#calendario').hidden=!menu;$('#week-title').textContent='Il menù della settimana';}
+ if(mobile.matches)$('#week-title').textContent='Il menù della settimana';
  else $('#week-title').textContent='La settimana a tavola';
 }
 window.addEventListener('hashchange',()=>{updateNav();if(mobile.matches&&document.body.dataset.page==='calendar')requestAnimationFrame(()=>scrollTo(0,0))});

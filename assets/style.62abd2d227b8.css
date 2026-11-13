@@ -80,7 +80,9 @@ button.family{background:var(--card);color:var(--green)}.catalog-row{width:100%;
  .main-nav{display:none}
  .sync-bar{padding:8px 16px;font-size:11px}
  main{padding:18px 16px 0}.intro{margin-bottom:20px}.intro .eyebrow{display:none}.intro h1{font-size:30px;margin:0 0 8px}.intro p{font-size:14px;margin:0}
- .mobile-menu-page .intro{display:none}
+ body:not([data-page=calendar]) #calendario,
+ body[data-page=calendar] .intro,
+ body[data-page=calendar] .columns{display:none}
  .mobile-nav{display:grid;grid-template-columns:repeat(3,1fr);position:fixed;z-index:40;inset:auto 0 0;background:var(--card);border-top:1px solid var(--border);padding:7px 12px calc(7px + env(safe-area-inset-bottom));gap:6px;box-shadow:0 -3px 18px #24422f0c}
  .mobile-nav>a,.mobile-nav>button{min-height:54px;display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:4px;border:0;border-radius:10px;text-decoration:none;background:transparent;color:var(--muted);font:inherit;font-size:13px}
  .mobile-nav span{flex-basis:100%;text-align:center;font-size:22px;line-height:22px}.mobile-nav small:empty{display:none}

@@ -1,5 +1,5 @@
 import {scrollSpeed} from './drag-scroll.61ef08112411.js';
-import {showPage,movePlanned,moveShop,reorderShop,fillStoreSettings} from './app.19074303c23a.js';
+import {showPage,movePlanned,moveShop,reorderShop,fillStoreSettings} from './app.aef05bf8952f.js';
 const $=s=>document.querySelector(s);
 const settings=document.createElement('dialog');
 settings.id='settings-dialog';

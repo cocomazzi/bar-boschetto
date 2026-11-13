@@ -1,5 +1,12 @@
 <!doctype html>
-<html lang="it"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#24422F"><link rel="preload" as="image" href="menu-neon.png" fetchpriority="high"><title>Bar Boschetto · Ricettario di famiglia</title><link rel="stylesheet" href="style.css"><link rel="manifest" href="manifest.webmanifest"><link rel="apple-touch-icon" href="boschetto-full-180.png"><link rel="icon" type="image/png" sizes="64x64" href="boschetto-icon-64.png"></head><body>
+<html lang="it"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#24422F"><link rel="preload" as="image" href="menu-neon.png" fetchpriority="high"><title>Bar Boschetto · Ricettario di famiglia</title><link rel="stylesheet" href="style.css"><link rel="manifest" href="manifest.webmanifest"><link rel="apple-touch-icon" href="boschetto-full-180.png"><link rel="icon" type="image/png" sizes="64x64" href="boschetto-icon-64.png"></head><body data-startup="loading">
+<section id="startup" aria-label="Avvio di Bar Boschetto">
+ <img src="boschetto-full-192.png" alt="Bar Boschetto" width="120" height="120" fetchpriority="high">
+ <p id="startup-loading" role="status">Caricamento…</p>
+ <p id="startup-error" role="alert"></p>
+ <button id="startup-retry" class="primary-button" type="button" hidden>Ricarica</button>
+ <noscript><p>Attiva JavaScript per aprire Bar Boschetto.</p></noscript>
+</section>
 <script>
  // Select the initial view before the browser paints the page.
  const initialHash = window.location.hash;

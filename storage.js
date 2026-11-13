@@ -13,7 +13,12 @@ const api=remoteApi;
 export const appStorage={
  getItem(key){return values[key]??null},
  setItem(key,value){if(key==='boschetto-v1')value=JSON.stringify(preserveNutritionSettings(JSON.parse(values[key]||'{}'),JSON.parse(value)));if(!cloud){if(booting){values[key]=value;return}openLogin();throw Error('Accedi per salvare le modifiche.');}if(blocked)throw Error('Sincronizzazione bloccata: esporta i dati e ricarica.');if(!KEYS.includes(key))throw Error('Chiave non valida');if(values[key]===value)return;values[key]=value;dirty=true;backup();status('Invio delle modifiche…');clearTimeout(timer);timer=setTimeout(flush,250)},
- async catalog(){return cloud?catalog:await(await fetch('./data.json')).json()}
+ async catalog(){
+  if(cloud)return catalog;
+  const response=await fetch('./data.json');
+  if(!response.ok)throw Error('Ricettario non disponibile');
+  return response.json();
+ }
 };
 async function flush(){
  if(!cloud||!dirty||sending||blocked)return;sending=true;const encoded=snapshot();

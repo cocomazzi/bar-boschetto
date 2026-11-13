@@ -1,5 +1,5 @@
-import {appStorage} from './storage.36b98984d30b.js';
-import {getRecipeForNutrition} from './app.19074303c23a.js';
+import {appStorage} from './storage.3c32e4c1da79.js';
+import {getRecipeForNutrition} from './app.aef05bf8952f.js';
 import {NUTRIENTS,number,validPercent,normalizedSettings,calculateRecipe,unitInfo} from './recipe-nutrition-model.d7a14e0372ca.js';
 const $=s=>document.querySelector(s),escape=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const labels={kcal:'Calorie',protein:'Proteine',carbs:'Carboidrati',fat:'Grassi'};

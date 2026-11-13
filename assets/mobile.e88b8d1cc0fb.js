@@ -1,4 +1,4 @@
-import {assignDay,movePlanned,mobileMenuDates} from './app.19074303c23a.js';
+import {assignDay,movePlanned,mobileMenuDates} from './app.aef05bf8952f.js';
 import {scrollSpeed} from './drag-scroll.61ef08112411.js';
 
 const $=s=>document.querySelector(s);

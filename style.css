@@ -153,3 +153,27 @@ button.family{background:var(--card);color:var(--green)}.catalog-row{width:100%;
 @media(max-width:760px){
  .mobile-nav [data-mobile-page=calendar] span {font-size:18px}
 }
+
+/* Keep the first view laid out while its data and controls initialize. */
+#startup { display: none; }
+body[data-startup] > header,
+body[data-startup] > nav,
+body[data-startup] > .sync-bar,
+body[data-startup] > main { visibility: hidden; }
+body[data-startup] { overflow: hidden; }
+body[data-startup] > #startup {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: grid;
+  align-content: center;
+  justify-items: center;
+  gap: 12px;
+  padding: 24px;
+  background: var(--bg);
+  color: var(--green);
+  text-align: center;
+}
+#startup p { margin: 0; max-width: 32ch; }
+#startup-error:empty,
+body[data-startup="error"] #startup-loading { display: none; }

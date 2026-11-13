@@ -1,15 +1,53 @@
 import {scrollSpeed} from './drag-scroll.js';
-import {showPage,movePlanned,moveShop,reorderShop,shopEditor,saveShopEditor} from './app.js';
+import {showPage,movePlanned,moveShop,reorderShop,fillStoreSettings} from './app.js';
 const $=s=>document.querySelector(s);
-const settings=document.createElement('dialog');settings.id='settings-dialog';settings.innerHTML='<h2>Impostazioni</h2><h3>Backup e trasferimento</h3><div class="sync-actions"></div><h3>Supermercati</h3><div id="settings-stores"></div><button type="button" id="close-settings">Chiudi</button>';document.body.append(settings);
+const settings=document.createElement('dialog');
+settings.id='settings-dialog';
+settings.setAttribute('aria-labelledby','settings-title');
+settings.innerHTML=`
+ <div class="section-title">
+  <h2 id="settings-title">Impostazioni</h2>
+  <button type="button" class="delete-item" id="close-settings" aria-label="Chiudi impostazioni">×</button>
+ </div>
+ <div id="settings-home">
+  <div class="settings-list">
+   <button type="button" id="open-store-settings" class="settings-item">
+    <span><strong>Imposta supermercati</strong><small>Nomi delle liste e supermercato predefinito</small></span>
+    <span class="settings-chevron" aria-hidden="true">›</span>
+   </button>
+   <button type="button" id="settings-catalog" class="settings-item" aria-haspopup="dialog">
+    <span><strong>Catalogo ingredienti</strong><small>Cerca ingredienti e consulta i valori nutrizionali</small></span>
+    <span class="settings-chevron" aria-hidden="true">›</span>
+   </button>
+  </div>
+  <details class="settings-backup"><summary>Backup e trasferimento</summary><div class="sync-actions"></div></details>
+ </div>
+ <div id="settings-stores" hidden>
+  <button type="button" id="back-settings" class="text-button">‹ Impostazioni</button>
+  <p id="shopping-store-status" class="small" role="status"></p>
+ </div>`;
+document.body.append(settings);
 for(const id of ['sync-backup','sync-upload','sync-import','sync-file'])settings.querySelector('.sync-actions').append($('#'+id));
-$('#settings-stores').append($('#shopping-store-settings'));$('#shopping-store-settings').open=true;
-$('#open-settings').onclick=()=>settings.showModal();$('#close-settings').onclick=()=>settings.close();
+const storeSettings=$('#shopping-store-settings');
+$('#settings-stores').insertBefore(storeSettings,$('#shopping-store-status'));
+function showSettingsPage(stores){
+ $('#settings-title').textContent=stores?'Imposta supermercati':'Impostazioni';
+ $('#settings-home').hidden=stores;
+ $('#settings-stores').hidden=!stores;
+ storeSettings.open=stores;
+ $('#shopping-store-error').textContent='';
+ $('#shopping-store-status').textContent='';
+}
+$('#open-settings').onclick=()=>{showSettingsPage(false);settings.showModal()};
+$('#close-settings').onclick=()=>settings.close();
+$('#open-store-settings').onclick=()=>{fillStoreSettings();showSettingsPage(true);$('#back-settings').focus()};
+$('#back-settings').onclick=()=>{showSettingsPage(false);$('#open-store-settings').focus()};
+$('#settings-catalog').onclick=()=>$('#open-ingredients').click();
 const manual=$('.manual-add');manual.querySelector('summary').innerHTML='<span id="manual-plus" role="button" aria-label="Aggiungi alla spesa">+</span>';manual.addEventListener('toggle',()=>{if(manual.open)$('#manual-name').focus()});
 const options=document.createElement('details');options.className='manual-options';options.innerHTML='<summary aria-label="Opzioni aggiunta manuale">⚙</summary>';const form=$('#manual-form');for(const id of ['manual-quantity','manual-unit','manual-store']){const label=$('#'+id).closest('label');options.append(label)}form.insertBefore(options,form.querySelector('button[type=submit]'));
 manual.querySelector('summary').innerHTML='<span class="manual-add-symbol">+</span><span>Aggiungi un prodotto</span>';
 for(const dialog of document.querySelectorAll('dialog')){let backdrop=false;dialog.addEventListener('pointerdown',e=>{const r=dialog.getBoundingClientRect();backdrop=e.target===dialog&&(e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom)});dialog.addEventListener('click',e=>{if(backdrop&&e.target===dialog)dialog.close();backdrop=false})}
-function navigate(){const hash=location.hash.slice(1);const page=hash==='ricettario'?'recipes':hash==='calendario'?'calendar':'categories';showPage(page);$('#recipes').removeAttribute('aria-labelledby');$('#recipes').setAttribute('aria-label',page==='recipes'?'Ricettario':'Categorie');for(const [id,value] of [['nav-categories','categories'],['nav-recipes','recipes'],['nav-calendar','calendar']]){$('#'+id).toggleAttribute('aria-current',page===value);}}
+function navigate(){const hash=location.hash.slice(1);const page=hash==='ricettario'?'recipes':hash==='calendario'?'calendar':'categories';showPage(page,window.matchMedia('(max-width: 760px)').matches);$('#recipes').removeAttribute('aria-labelledby');$('#recipes').setAttribute('aria-label',page==='recipes'?'Ricettario':'Categorie');for(const [id,value] of [['nav-categories','categories'],['nav-recipes','recipes'],['nav-calendar','calendar']]){$('#'+id).toggleAttribute('aria-current',page===value);}}
 window.addEventListener('hashchange',navigate);navigate();
 $('#week-days').addEventListener('dragstart',e=>{if(e.target.closest('button'))return;const card=e.target.closest('[data-plan-id]');if(card)e.dataTransfer.setData('application/x-boschetto-plan',JSON.stringify({id:card.dataset.planId,day:card.dataset.planDay}));});
 for(const [type,fn] of [['dragover',e=>{if(e.target.closest('[data-store-tab]'))e.preventDefault()}],['drop',e=>{const target=e.target.closest('[data-store-tab]'),id=e.dataTransfer.getData('application/x-boschetto-shopping');if(target&&id){e.preventDefault();moveShop(id,target.dataset.storeTab)}}]])$('#shopping-store-tabs').addEventListener(type,fn);

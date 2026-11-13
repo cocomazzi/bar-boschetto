@@ -4,9 +4,9 @@ import * as shoppingModel from './shopping-model.js';
 import {preserveNutritionSettings} from './recipe-nutrition-model.js';
 const db=JSON.parse(await fs.readFile(new URL('./data.json',import.meta.url)));
 const src=(await fs.readFile(new URL('./app.js',import.meta.url),'utf8')).replace(/^import .*;\r?\n/gm,'').replaceAll('export function','function');
-async function run(values,scenario){
+async function run(values,scenario,mobile=false){
  const nodes=new Map(),listeners=new Map();function el(s){if(!nodes.has(s))nodes.set(s,{value:'',innerHTML:'',textContent:'',dataset:{},children:[],checked:false,disabled:false,hidden:false,open:false,addEventListener(type,fn){listeners.set(s+':'+type,fn)},querySelectorAll(){return[]},getBoundingClientRect(){return {height:0}},classList:{toggle(){},add(){},remove(){}},setAttribute(){},focus(){},showModal(){this.open=true},close(){this.open=false},checkValidity(){return true},reportValidity(){return true},setCustomValidity(){}});return nodes.get(s)}
- const c={...recipeIds,...shoppingModel,assert,values,console,Intl,JSON,Object,Map,Set,crypto:webcrypto,window:{},navigator:{clipboard:{}},document:{body:{dataset:{}},querySelector:el,createElement:()=>el('new'),documentElement:{style:{setProperty(){}}},addEventListener(){},activeElement:{tagName:'BODY'}},setTimeout:()=>0,clearTimeout(){},appStorage:{getItem:k=>values[k]??null,setItem:(k,v)=>{if(c.failShopping&&k==='boschetto-shopping-v1')throw Error('Simulated save failure');values[k]=k==='boschetto-v1'?JSON.stringify(preserveNutritionSettings(JSON.parse(values[k]||'{}'),JSON.parse(v))):v;},catalog:async()=>db}};
+ const c={...recipeIds,...shoppingModel,assert,values,console,Intl,JSON,Object,Map,Set,crypto:webcrypto,window:{matchMedia:()=>({matches:mobile})},navigator:{clipboard:{}},document:{body:{dataset:{}},querySelector:el,createElement:()=>el('new'),documentElement:{style:{setProperty(){}}},addEventListener(){},activeElement:{tagName:'BODY'}},setTimeout:()=>0,clearTimeout(){},appStorage:{getItem:k=>values[k]??null,setItem:(k,v)=>{if(c.failShopping&&k==='boschetto-shopping-v1')throw Error('Simulated save failure');values[k]=k==='boschetto-v1'?JSON.stringify(preserveNutritionSettings(JSON.parse(values[k]||'{}'),JSON.parse(v))):v;},catalog:async()=>db}};
  await vm.runInNewContext(`(async()=>{${src}\n${scenario}\n})()`,c);return c;
 }
 test('real calendar occurrences add/subtract only their demand; manual product and purchase/store survive reload',async()=>{
@@ -42,3 +42,19 @@ test('moving a calendar occurrence preserves identity and demand instead of dupl
 
 test('calendar page exposes 28 days and recipe view hides calendar',async()=>{await run({},`showPage('calendar');assert.equal(weekDates().length,28);assert.equal($('#ricettario').hidden,true);showPage('recipes');assert.equal($('#calendario').hidden,true);showPage('categories');assert.equal(weekDates().length,7);assert.equal(categoryOpen.size,0);`);});
 test('calendar plus picker submits recipe and immediately creates pending shopping demands',async()=>{await run({},`const day=dateKey(weekDates()[0]);$('#week-days').onclick({target:{closest:s=>s==='[data-pick-day]'?{dataset:{pickDay:day}}:null}});$('#calendar-recipe').value='R001';$('#calendar-form').onsubmit({preventDefault(){}});assert.equal(weekPlan[day][0].recipeId,'R001');const rows=shoppingRows(shoppingState,shoppingSources());assert.equal(rows.find(r=>r.key==='I001').quantities[0].sum,160);assert.equal(rows.find(r=>r.key==='I001').checked,false);assert.equal(rows.length,5);`);});
+
+
+test('mobile menu keeps seven vertical-day destinations, preserves recipe search and moves across weeks without duplicate demand',async()=>{await run({},`
+ showPage('calendar');assert.equal(weekDates().length,7);
+ const day=mobileMenuDates()[0].key;assignDay(day,'R001');const id=weekPlan[day][0].id;
+ assert.equal(mobileMenuDates()[0].count,1);
+ const before=JSON.stringify(shoppingRows(shoppingState,shoppingSources()).map(r=>r.quantities));
+ $('#next-week').onclick();const next=mobileMenuDates()[0].key;
+ assert.notEqual(next,day);assert.equal(movePlanned(day,id,next),true);
+ assert.equal(weekPlan[day],undefined);assert.equal(weekPlan[next][0].id,id);
+ assert.equal(JSON.stringify(shoppingRows(shoppingState,shoppingSources()).map(r=>r.quantities)),before);
+ $('#search').value='zucchine';activeTags.add('Vegetariano');showPage('categories',true);
+ assert.equal($('#search').value,'zucchine');assert.equal(activeTags.has('Vegetariano'),true);
+ assert.match($('#recipes').innerHTML,/data-add-menu/);
+ showPage('recipes',true);assert.equal($('#recipes').innerHTML.includes('recipe-table'),false);
+ `,true);});

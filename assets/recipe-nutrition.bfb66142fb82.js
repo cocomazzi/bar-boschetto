@@ -1,6 +1,6 @@
-import {appStorage} from './storage.c6ba295a607c.js';
-import {getRecipeForNutrition} from './app.8ac258257294.js';
-import {NUTRIENTS,number,validPercent,normalizedSettings,calculateRecipe,unitInfo} from './recipe-nutrition-model.3a4b0a0f1cec.js';
+import {appStorage} from './storage.36b98984d30b.js';
+import {getRecipeForNutrition} from './app.19074303c23a.js';
+import {NUTRIENTS,number,validPercent,normalizedSettings,calculateRecipe,unitInfo} from './recipe-nutrition-model.d7a14e0372ca.js';
 const $=s=>document.querySelector(s),escape=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const labels={kcal:'Calorie',protein:'Proteine',carbs:'Carboidrati',fat:'Grassi'};
 const format=n=>n===null?'—':new Intl.NumberFormat('it-IT',{maximumFractionDigits:1}).format(n);

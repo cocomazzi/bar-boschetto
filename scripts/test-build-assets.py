@@ -33,7 +33,8 @@ class BuildTests(unittest.TestCase):
     def test_published_graph_is_closed_and_contains_unchanged_source_logic(self):
         names = builder.build(self.root)
         output = self.root / 'assets'
-        self.assertEqual(len(names), 13)
+        self.assertIn('mobile.js', names)
+        self.assertEqual(len(names), 14)
         self.assertEqual({p.name for p in output.iterdir()}, set(names.values()))
         for source, target in names.items():
             data = (output / target).read_bytes()

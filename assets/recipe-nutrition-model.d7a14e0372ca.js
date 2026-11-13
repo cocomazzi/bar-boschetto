@@ -28,6 +28,7 @@ export function unitInfo(raw){
  if(['l','litro','litri'].includes(u))return {unit:'ml',scale:1000};if(u==='cl')return {unit:'ml',scale:10};if(u==='dl')return {unit:'ml',scale:100};
  if(['pz','pezzo','pezzi','p','piece','pieces'].includes(u))return {unit:'pz',scale:1};
  if(['porzione','porzioni'].includes(u))return {unit:'porzione',scale:1};
+ if(['cucchiaio','cucchiai'].includes(u))return {unit:'cucchiaio',scale:1};
  if(['spicchio','spicchi'].includes(u))return {unit:'spicchio',scale:1};
  if(['confezione','confezioni'].includes(u))return {unit:'confezione',scale:1};
  return {unit:u,scale:1};

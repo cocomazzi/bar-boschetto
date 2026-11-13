@@ -52,6 +52,7 @@ function amountUnit(unit){
  if(['g','gr','grammi'].includes(normalized))return {unit:'g',factor:1};
  if(normalized==='kg')return {unit:'g',factor:1000};if(normalized==='hg')return {unit:'g',factor:100};
  if(['pz','pezzo','pezzi'].includes(normalized))return {unit:'pz',factor:1};
+ if(['cucchiaio','cucchiai'].includes(normalized))return {unit:'cucchiaio',factor:1};
  return {unit:original,factor:1};
 }
 export function shoppingRows(state,sources){
